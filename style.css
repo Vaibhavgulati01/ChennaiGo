@@ -949,3 +949,133 @@ body.transition-active:after {
     0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
     100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
+/* NEW: Character Scene Styles */
+.character-scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2500;
+    transition: opacity 0.5s ease;
+}
+
+.scene-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.8);
+}
+
+.character-dialogue-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding: 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 30px;
+}
+
+.character-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+}
+
+.character-info h3 {
+    color: white;
+    font-size: 1.5em;
+    margin: 0 0 10px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.character-avatar {
+    font-size: 4em;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.dialogue-content {
+    flex: 1;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 30px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#ravi-dialogue-text {
+    font-size: 1.2em;
+    line-height: 1.6;
+    color: #333;
+    margin: 0 0 20px 0;
+}
+
+.dialogue-options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.dialogue-option-btn {
+    padding: 15px 20px;
+    border: 2px solid #e0e7ff;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.dialogue-option-btn:hover {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.dialogue-option-btn:active {
+    transform: translateY(0px);
+}
+
+/* Responsive adjustments for character scene */
+@media (max-width: 768px) {
+    .character-dialogue-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .character-info {
+        min-width: auto;
+        margin-bottom: 20px;
+    }
+    
+    .character-avatar {
+        font-size: 3em;
+        padding: 15px;
+    }
+    
+    .dialogue-content {
+        max-height: 250px;
+        padding: 20px;
+    }
+    
+    #ravi-dialogue-text {
+        font-size: 1.1em;
+    }
+}

@@ -26,6 +26,9 @@ class GameState {
             frames: [],
             stickers: []
         };
+        this.characterRelationships = {
+            ravi: { trust: 0, conversations: 0, lastMet: null }
+        };
         this.init();
     }
 
@@ -35,7 +38,6 @@ class GameState {
         this.updateStreak();
         this.sessionStartTime = Date.now();
         
-        // FIXED: Initialize daily quests display immediately
         setTimeout(() => {
             this.updateDailyQuestsDisplay();
         }, 100);
@@ -59,7 +61,6 @@ class GameState {
         this.updateXPDisplay();
         this.saveProgress();
         
-        // Show XP gain animation
         this.showXPGain(amount, reason);
     }
 
@@ -74,17 +75,13 @@ class GameState {
         const yesterday = new Date(Date.now() - 86400000).toDateString();
         
         if (this.lastPlayDate === today) {
-            // Already played today
             return;
         } else if (this.lastPlayDate === yesterday) {
-            // Streak continues
             this.streak++;
         } else if (this.lastPlayDate && this.streakFreezes > 0) {
-            // Use streak freeze
             this.streakFreezes--;
             this.streak++;
         } else {
-            // Streak broken
             this.streak = 1;
         }
         
@@ -100,11 +97,9 @@ class GameState {
         
         if (savedDate === today && savedQuests) {
             this.dailyQuests = JSON.parse(savedQuests);
-            console.log('Loaded existing daily quests:', this.dailyQuests);
             return;
         }
         
-        // ENHANCED: Generate new daily quests with better variety
         const questTemplates = [
             { id: 'identify', text: 'Identify 3 landmarks', target: 3, progress: 0, reward: 50, emoji: '🏛️' },
             { id: 'phrases', text: 'Learn 5 Tamil phrases', target: 5, progress: 0, reward: 40, emoji: '💬' },
@@ -116,12 +111,10 @@ class GameState {
             { id: 'explore', text: 'Visit 2 different areas', target: 2, progress: 0, reward: 40, emoji: '🗺️' }
         ];
         
-        // Select 3 random quests
         this.dailyQuests = questTemplates
             .sort(() => Math.random() - 0.5)
             .slice(0, 3);
         
-        console.log('Generated new daily quests:', this.dailyQuests);
         localStorage.setItem('dailyQuests', JSON.stringify(this.dailyQuests));
         localStorage.setItem('dailyQuestsDate', today);
     }
@@ -141,8 +134,19 @@ class GameState {
         }
     }
 
+    updateCharacterRelationship(character, trustChange) {
+        if (!this.characterRelationships[character]) {
+            this.characterRelationships[character] = { trust: 0, conversations: 0, lastMet: null };
+        }
+        
+        this.characterRelationships[character].trust = Math.max(0, Math.min(100, 
+            this.characterRelationships[character].trust + trustChange));
+        this.characterRelationships[character].conversations++;
+        this.characterRelationships[character].lastMet = new Date().toISOString();
+        this.saveProgress();
+    }
+
     checkMysteryChest() {
-        // Random chance for mystery chest (10% base, increases with streak)
         const chestChance = Math.min(0.1 + (this.streak * 0.02), 0.3);
         if (Math.random() < chestChance) {
             this.showMysteryChest();
@@ -151,6 +155,8 @@ class GameState {
 
     showMysteryChest() {
         const modal = document.getElementById('mystery-chest-modal');
+        if (!modal) return;
+        
         const chest = document.getElementById('mystery-chest');
         const message = document.getElementById('chest-message');
         const rewards = document.getElementById('chest-rewards');
@@ -197,7 +203,6 @@ class GameState {
         rewardElement.innerHTML = `<span>${reward.icon}</span><span>${reward.text}</span>`;
         rewards.appendChild(rewardElement);
         
-        // Apply reward
         switch (reward.type) {
             case 'xp':
                 this.addXP(reward.amount, 'Mystery Chest');
@@ -216,6 +221,8 @@ class GameState {
 
     showLevelUpModal() {
         const modal = document.getElementById('level-up-modal');
+        if (!modal) return;
+        
         const levelDisplay = document.getElementById('new-level');
         const rewardText = document.getElementById('level-reward-text');
         const closeBtn = document.getElementById('close-level-btn');
@@ -261,7 +268,9 @@ class GameState {
         }
         
         setTimeout(() => {
-            document.body.removeChild(container);
+            if (container.parentElement) {
+                document.body.removeChild(container);
+            }
         }, 4000);
     }
 
@@ -295,8 +304,12 @@ class GameState {
         document.body.appendChild(xpGain);
         
         setTimeout(() => {
-            document.body.removeChild(xpGain);
-            document.head.removeChild(style);
+            if (xpGain.parentElement) {
+                document.body.removeChild(xpGain);
+            }
+            if (style.parentElement) {
+                document.head.removeChild(style);
+            }
         }, 2000);
     }
 
@@ -328,9 +341,13 @@ class GameState {
                 chittuContainer.prepend(xpDisplay);
             }
         } else {
-            xpDisplay.querySelector('.level-number').textContent = this.level;
-            xpDisplay.querySelector('.xp-text').textContent = `${progressXP}/${neededXP} XP`;
-            xpDisplay.querySelector('.xp-progress').style.width = `${progressPercent}%`;
+            const levelNumber = xpDisplay.querySelector('.level-number');
+            const xpText = xpDisplay.querySelector('.xp-text');
+            const xpProgress = xpDisplay.querySelector('.xp-progress');
+            
+            if (levelNumber) levelNumber.textContent = this.level;
+            if (xpText) xpText.textContent = `${progressXP}/${neededXP} XP`;
+            if (xpProgress) xpProgress.style.width = `${progressPercent}%`;
         }
     }
 
@@ -343,20 +360,18 @@ class GameState {
             streakText.textContent = this.streak === 1 ? 'day streak' : 'day streak';
             
             if (this.streak >= 7) {
-                document.getElementById('streak-display').style.background = 
-                    'linear-gradient(135deg, #8b5cf6, #ec4899)';
+                const streakDisplay = document.getElementById('streak-display');
+                if (streakDisplay) {
+                    streakDisplay.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+                }
             }
         }
     }
 
     updateDailyQuestsDisplay() {
         const questsList = document.getElementById('daily-quests-list');
-        if (!questsList) {
-            console.log('Daily quests list element not found');
-            return;
-        }
+        if (!questsList) return;
         
-        console.log('Updating daily quests display with:', this.dailyQuests);
         questsList.innerHTML = '';
         
         if (this.dailyQuests.length === 0) {
@@ -419,7 +434,6 @@ class GameState {
 
     playSound(type) {
         try {
-            // Web Audio API implementation for sound effects
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
             const sounds = {
@@ -483,6 +497,8 @@ class GameState {
         setTimeout(() => {
             if (reward.parentElement) {
                 document.body.removeChild(reward);
+            }
+            if (style.parentElement) {
                 document.head.removeChild(style);
             }
         }, 3000);
@@ -502,7 +518,8 @@ class GameState {
             streakFreezes: this.streakFreezes,
             totalPlayTime: this.totalPlayTime + (Date.now() - this.sessionStartTime),
             masteryStars: this.masteryStars,
-            cosmetics: this.cosmetics
+            cosmetics: this.cosmetics,
+            characterRelationships: this.characterRelationships
         };
         localStorage.setItem('chennaiGoProgress', JSON.stringify(saveData));
     }
@@ -512,7 +529,7 @@ class GameState {
         if (saved) {
             const data = JSON.parse(saved);
             Object.assign(this, data);
-            this.sessionStartTime = Date.now(); // Reset session timer
+            this.sessionStartTime = Date.now();
         }
     }
 }
@@ -520,7 +537,224 @@ class GameState {
 // Initialize game state
 const gameState = new GameState();
 
-// FIXED: Original dialogue script with proper feedback for all options
+// GLOBAL VARIABLES
+let globalMap = null;
+let globalStartQuestFunction = null;
+
+// GLOBAL STREET VIEW FUNCTION
+function showStreetView(location) { 
+    console.log('Starting Street View at:', location);
+    
+    if (!globalMap) {
+        console.error('Map not initialized yet!');
+        return;
+    }
+    
+    const mapContainer = document.getElementById('map-container'); 
+    mapContainer.classList.add('map-zoom-out'); 
+    
+    setTimeout(() => { 
+        try {
+            const pano = new google.maps.StreetViewPanorama(document.getElementById("map"), { 
+                position: location, 
+                pov: { heading: 200, pitch: 10 }, 
+                visible: true, 
+                addressControl: false, 
+                linksControl: true, 
+                panControl: true, 
+                fullscreenControl: false 
+            }); 
+            
+            globalMap.setStreetView(pano); 
+            console.log('Street View initialized successfully');
+            
+            setTimeout(() => {
+                mapContainer.classList.remove('map-zoom-out');
+            }, 50); 
+        } catch (error) {
+            console.error('Street View error:', error);
+        }
+    }, 800); 
+}
+
+// RAVI'S CONVERSATION SYSTEM
+const raviConversations = {
+    introduction: {
+        character: "Ravi",
+        text: "Vanakkam! I'm Ravi, been fishing these waters for 20 years. The sea here tells many stories... What brings you to Marina Beach today?",
+        options: [
+            { text: "I want to learn about this place", nextNode: "about_place", trust: 5 },
+            { text: "Tell me about fishing culture", nextNode: "fishing_culture", trust: 8 },
+            { text: "Just exploring Chennai", nextNode: "exploring", trust: 3 },
+            { text: "Can you teach me Tamil?", nextNode: "tamil_interest", trust: 10 }
+        ]
+    },
+    
+    about_place: {
+        character: "Ravi",
+        text: "Ah, Marina Beach! It's the world's second longest urban beach - 13 kilometers of golden sand. I've watched sunrises here for decades. The waves carry stories from the Bay of Bengal...",
+        options: [
+            { text: "That sounds beautiful! Show me around?", nextNode: "show_around", trust: 8 },
+            { text: "What makes it special?", nextNode: "special_place", trust: 5 },
+            { text: "I'd love to see the sunrise spot", nextNode: "sunrise_spot", trust: 7 }
+        ]
+    },
+    
+    fishing_culture: {
+        character: "Ravi",
+        text: "Our fishing community has lived here for generations! We go out before dawn in our colorful boats. In Tamil, we call fishing 'மீன் பிடிப்பு' (meen pidippu). The sea provides, and we respect her moods.",
+        options: [
+            { text: "Can you show me the fishing area?", nextNode: "fishing_area", trust: 10 },
+            { text: "What do you catch here?", nextNode: "fish_types", trust: 6 },
+            { text: "How do you predict the weather?", nextNode: "weather_wisdom", trust: 8 }
+        ]
+    },
+    
+    exploring: {
+        character: "Ravi",
+        text: "Exploring is good! Chennai has many faces, and Marina Beach is her most peaceful one. Here you can see the real spirit of our city - families enjoying, children playing, fishermen working...",
+        options: [
+            { text: "I'd love to see it all!", nextNode: "show_around", trust: 7 },
+            { text: "What's the best time to visit?", nextNode: "best_time", trust: 4 },
+            { text: "Are there other places like this?", nextNode: "other_beaches", trust: 3 }
+        ]
+    },
+    
+    tamil_interest: {
+        character: "Ravi",
+        text: "Tamil is beautiful language! Like the sea - sometimes gentle, sometimes powerful. I can teach you words we use here daily. First word - 'கடல்' (kadal) means 'sea'. Can you say it?",
+        options: [
+            { text: "Kadal! Teach me more?", nextNode: "tamil_lesson", trust: 12 },
+            { text: "What other words should I know?", nextNode: "useful_words", trust: 8 },
+            { text: "Show me how you use Tamil here", nextNode: "tamil_in_action", trust: 10 }
+        ]
+    },
+    
+    show_around: {
+        character: "Ravi",
+        text: "Perfect! Come, let me show you my favorite spots. We'll start with the lighthouse - can you see it from here? Then the fishing harbor where my boat is moored. Ready to explore?",
+        options: [
+            { text: "Yes! Let's go!", nextNode: "start_exploration", trust: 10 },
+            { text: "What will we see first?", nextNode: "tour_preview", trust: 5 },
+            { text: "I'm excited! Lead the way!", nextNode: "start_exploration", trust: 12 }
+        ]
+    },
+    
+    special_place: {
+        character: "Ravi",
+        text: "Marina Beach is where Chennai breathes. Morning brings joggers and yoga people, evening brings families and lovers. The sand has heard a million prayers and dreams. It connects us all - rich, poor, young, old.",
+        options: [
+            { text: "I want to feel that connection too", nextNode: "start_exploration", trust: 15 },
+            { text: "Show me these different times", nextNode: "time_tour", trust: 8 },
+            { text: "That's beautiful. Let's explore!", nextNode: "start_exploration", trust: 10 }
+        ]
+    },
+    
+    fishing_area: {
+        character: "Ravi",
+        text: "Yes! The fishing harbor is just north from here. Early morning is magical - boats returning with silver catch, seagulls dancing, families welcoming their fishermen home. Want to see it?",
+        options: [
+            { text: "Absolutely! Let's go there!", nextNode: "start_exploration", trust: 12 },
+            { text: "That sounds amazing!", nextNode: "start_exploration", trust: 10 },
+            { text: "I'd love to see the boats", nextNode: "start_exploration", trust: 8 }
+        ]
+    },
+    
+    tamil_lesson: {
+        character: "Ravi",
+        text: "Wonderful! Here are fisherman's words: 'படகு' (padagu) - boat, 'மீன்' (meen) - fish, 'நீர்' (neer) - water, 'காலை' (kaalai) - morning. Now, shall we walk and I'll show you where we use these words?",
+        options: [
+            { text: "Yes! Teach me while we explore!", nextNode: "start_exploration", trust: 15 },
+            { text: "Let's practice these words around here", nextNode: "start_exploration", trust: 12 },
+            { text: "Show me your boat - படகு!", nextNode: "start_exploration", trust: 18 }
+        ]
+    },
+    
+    start_exploration: {
+        character: "Ravi",
+        text: "Come then, my friend! *gestures toward the beach* Let me show you Marina Beach through a fisherman's eyes. The real Chennai starts here...",
+        options: [
+            { text: "I'm ready! Show me around!", action: "start_street_view", trust: 20 }
+        ]
+    },
+    
+    sunrise_spot: {
+        character: "Ravi",
+        text: "Ah, the sunrise spot! Every morning at 5:30 AM, the sun rises from the Bay of Bengal like a golden coin from the water. Photographers, yogis, and old fishermen like me gather there. It's magical!",
+        options: [
+            { text: "Take me there!", nextNode: "start_exploration", trust: 10 },
+            { text: "I'd love to see that magic", nextNode: "start_exploration", trust: 8 }
+        ]
+    },
+    
+    tour_preview: {
+        character: "Ravi",
+        text: "First, the lighthouse - our guardian for ships. Then fishing boats with their bright colors. Maybe the memorial statues, and definitely the spot where waves are perfect for children to play. Ready?",
+        options: [
+            { text: "Perfect! Let's start the tour!", nextNode: "start_exploration", trust: 8 }
+        ]
+    },
+    
+    fish_types: {
+        character: "Ravi",
+        text: "We catch many types! Pomfret, kingfish, prawns, crabs. The best catch comes at dawn when fish are closest to shore. Each season brings different fish - monsoon brings sardines, winter brings bigger fish.",
+        options: [
+            { text: "Show me where you catch them!", nextNode: "start_exploration", trust: 10 },
+            { text: "I'd love to see your fishing spot", nextNode: "start_exploration", trust: 8 }
+        ]
+    },
+    
+    weather_wisdom: {
+        character: "Ravi",
+        text: "The sea tells us everything! When waves crash differently, storm is coming. When seabirds fly low, wind will change. My father taught me, his father taught him. This knowledge keeps fishermen safe.",
+        options: [
+            { text: "That's amazing! Show me the sea", nextNode: "start_exploration", trust: 12 },
+            { text: "I want to learn to read the waves", nextNode: "start_exploration", trust: 10 }
+        ]
+    },
+    
+    best_time: {
+        character: "Ravi",
+        text: "Dawn and evening are the best! Morning brings cool breeze and peaceful fishing boats. Evening brings families and food stalls. But any time is good to feel the sea's magic.",
+        options: [
+            { text: "Let's explore together!", nextNode: "start_exploration", trust: 8 }
+        ]
+    },
+    
+    other_beaches: {
+        character: "Ravi",
+        text: "There are many beaches in Chennai, but Marina is special. Besant Nagar has quieter spots, Elliot's Beach has rocky shores. But Marina... Marina has the soul of Chennai.",
+        options: [
+            { text: "Show me Marina's soul!", nextNode: "start_exploration", trust: 10 }
+        ]
+    },
+    
+    useful_words: {
+        character: "Ravi",
+        text: "Good question! For visitors: 'வணக்கம்' (vanakkam) - hello, 'நன்றி' (nandri) - thank you, 'எவ்வளவு?' (evvalavu) - how much? These will help you everywhere in Chennai!",
+        options: [
+            { text: "Let's use them while exploring!", nextNode: "start_exploration", trust: 12 }
+        ]
+    },
+    
+    tamil_in_action: {
+        character: "Ravi",
+        text: "Perfect! When I buy chai, I say 'ஒரு டீ' (oru tea). When greeting friends, 'எப்படி இருக்கே?' (eppadi irukke) - how are you? Tamil connects hearts here.",
+        options: [
+            { text: "I want to connect hearts too!", nextNode: "start_exploration", trust: 15 }
+        ]
+    },
+    
+    time_tour: {
+        character: "Ravi",
+        text: "Imagine morning joggers breathing sea air, sunset couples sharing dreams, children building sand castles. Each hour brings different energy. Marina never sleeps, she just changes her rhythm.",
+        options: [
+            { text: "Let's feel that rhythm!", nextNode: "start_exploration", trust: 12 }
+        ]
+    }
+};
+
+// Original dialogue script
 const script = { 
     start: { 
         character: "Auto Driver Anna", 
@@ -537,11 +771,10 @@ const script = {
         text: (dest) => `Ah, ${dest}! Excellent choice, sir! Before we go, let me teach you something. To ask 'What is the price?' in Tamil, we say <i class='tamil-word'>'Vilai enna?'</i>. Can you repeat it back to me?`, 
         options: [ 
             { text: "Where is it?" }, 
-            { text: "What is the price?" },  // CORRECT answer
+            { text: "What is the price?" },
             { text: "Thank you" } 
         ], 
         action: (choice, dest) => { 
-            // FIXED: Added proper feedback and effects for all options
             if (choice.text === "What is the price?") {
                 gameState.addXP(15, 'Tamil Phrase');
                 gameState.updateDailyQuest('phrases');
@@ -568,24 +801,24 @@ const script = {
     } 
 };
 
-// Custom transition function (unchanged)
+// Custom transition function
 function customTransition() {
     return new Promise((resolve) => {
         const body = document.body;
         const loader = document.querySelector('.loader');
         const transitionText = document.querySelector('.transition-text');
 
-        body.classList.add('transition-active');
+        if (body) body.classList.add('transition-active');
         
         setTimeout(() => {
-            loader.classList.add('active');
-            transitionText.classList.add('active');
+            if (loader) loader.classList.add('active');
+            if (transitionText) transitionText.classList.add('active');
         }, 200);
 
         setTimeout(() => {
-            body.classList.remove('transition-active');
-            loader.classList.remove('active');
-            transitionText.classList.remove('active');
+            if (body) body.classList.remove('transition-active');
+            if (loader) loader.classList.remove('active');
+            if (transitionText) transitionText.classList.remove('active');
             
             setTimeout(() => {
                 resolve();
@@ -608,8 +841,7 @@ function startSessionTimer() {
                 `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
         
-        // Check for healthy session prompts
-        if (seconds % 900 === 0) { // Every 15 minutes
+        if (seconds % 900 === 0) {
             gameState.checkSessionTime();
         }
     }, 1000);
@@ -617,28 +849,30 @@ function startSessionTimer() {
 
 window.onload = () => {
     const startButton = document.getElementById('start-button');
-    startButton.addEventListener('click', beginGame);
+    if (startButton) {
+        startButton.addEventListener('click', beginGame);
+    }
     
-    // FIXED: Initialize UI with delay to ensure DOM is ready
     setTimeout(() => {
         gameState.updateXPDisplay();
         gameState.updateStreakDisplay();
         gameState.updateDailyQuestsDisplay();
     }, 500);
     
-    // Daily quest panel toggle
     const toggleQuestsBtn = document.getElementById('toggle-quests');
     if (toggleQuestsBtn) {
         toggleQuestsBtn.addEventListener('click', () => {
             const questsList = document.getElementById('daily-quests-list');
             const toggleBtn = document.getElementById('toggle-quests');
             
-            if (questsList.style.display === 'none') {
-                questsList.style.display = 'block';
-                toggleBtn.textContent = '−';
-            } else {
-                questsList.style.display = 'none';
-                toggleBtn.textContent = '+';
+            if (questsList && toggleBtn) {
+                if (questsList.style.display === 'none') {
+                    questsList.style.display = 'block';
+                    toggleBtn.textContent = '−';
+                } else {
+                    questsList.style.display = 'none';
+                    toggleBtn.textContent = '+';
+                }
             }
         });
     }
@@ -647,24 +881,34 @@ window.onload = () => {
 };
 
 async function beginGame() {
-    document.getElementById('start-screen').style.display = 'none';
+    const startScreen = document.getElementById('start-screen');
+    if (startScreen) {
+        startScreen.style.display = 'none';
+    }
     await customTransition();
     startDialogue();
 }
 
 function startDialogue() {
-    document.getElementById('airport-road-scene').style.display = 'block';
-    setTimeout(() => {
-        showStreetDialogueNode('start');
-    }, 1000);
+    const airportScene = document.getElementById('airport-road-scene');
+    if (airportScene) {
+        airportScene.style.display = 'block';
+        setTimeout(() => {
+            showStreetDialogueNode('start');
+        }, 1000);
+    }
 }
 
 function showStreetDialogueNode(nodeKey, context = null) {
     const node = script[nodeKey];
+    if (!node) return;
+    
     const streetDialogueBox = document.getElementById('street-dialogue-box');
     const streetDialogueCharacter = document.getElementById('street-dialogue-character');
     const streetDialogueText = document.getElementById('street-dialogue-text');
     const streetDialogueOptions = document.getElementById('street-dialogue-options');
+    
+    if (!streetDialogueBox || !streetDialogueCharacter || !streetDialogueText || !streetDialogueOptions) return;
     
     streetDialogueCharacter.innerHTML = `<span class="driver-name">${node.character}</span>`;
     streetDialogueText.innerHTML = typeof node.text === 'function' ? node.text(context) : node.text;
@@ -686,26 +930,49 @@ function startGame(destination) {
     startDestinationForMap = destination;
     
     const airportScene = document.getElementById('airport-road-scene');
-    airportScene.style.opacity = '0';
-    setTimeout(() => {
-        airportScene.style.display = 'none';
-    }, 500);
+    if (airportScene) {
+        airportScene.style.opacity = '0';
+        setTimeout(() => {
+            airportScene.style.display = 'none';
+        }, 500);
+    }
 
     const mapContainer = document.getElementById('map-container'); 
-    mapContainer.style.opacity = '1'; 
-    injectMainGameUI();
-    window.runMainGameLogic = runMainGameLogic;
-    const scriptTag = document.createElement('script'); 
-    scriptTag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=runMainGameLogic`; 
-    scriptTag.async = true; 
-    document.head.appendChild(scriptTag);
+    if (mapContainer) {
+        mapContainer.style.opacity = '1'; 
+        injectMainGameUI();
+        window.runMainGameLogic = runMainGameLogic;
+        const scriptTag = document.createElement('script'); 
+        scriptTag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=runMainGameLogic`; 
+        scriptTag.async = true; 
+        document.head.appendChild(scriptTag);
+    }
 }
 
 function injectMainGameUI() {
-    document.getElementById('map-container').innerHTML = `
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) return;
+    
+    mapContainer.innerHTML = `
         <div id="map"></div>
         <div id="temple-toggle-button">📖</div>
         <div id="word-temple"><h2>Your Word Temple</h2><ul id="word-list"></ul></div>
+        
+        <!-- NEW: Ravi Conversation Scene -->
+        <div id="ravi-scene" class="character-scene" style="display: none;">
+            <div class="scene-background" style="background-image: url('exp1.png'); background-size: cover; background-position: center;"></div>
+            <div class="character-dialogue-container">
+                <div class="character-info">
+                    <h3 id="ravi-character-name">Ravi</h3>
+                    <div class="character-avatar">🧔‍♂️</div>
+                </div>
+                <div class="dialogue-content">
+                    <p id="ravi-dialogue-text">Loading...</p>
+                    <div id="ravi-dialogue-options" class="dialogue-options-grid"></div>
+                </div>
+            </div>
+        </div>
+        
         <div id="chittu-container">
             <div style="display: flex; align-items: flex-end; gap: 10px;">
                 <div id="chittu-avatar">🐦</div>
@@ -713,6 +980,139 @@ function injectMainGameUI() {
             </div>
         </div>
         <div id="quest-box"><h2 id="quest-title"></h2><p id="quest-challenge"></p><div class="options-container" id="quest-options-main"></div></div>`;
+}
+
+// Ravi conversation system
+function showRaviConversation(nodeKey = 'introduction') {
+    console.log('Starting Ravi conversation:', nodeKey);
+    const node = raviConversations[nodeKey];
+    if (!node) {
+        console.error('Conversation node not found:', nodeKey);
+        return;
+    }
+    
+    // Hide map and show Ravi scene
+    const mapElement = document.getElementById('map');
+    const raviScene = document.getElementById('ravi-scene');
+    
+    if (mapElement) mapElement.style.display = 'none';
+    if (raviScene) raviScene.style.display = 'block';
+    
+    // Update dialogue content
+    const dialogueText = document.getElementById('ravi-dialogue-text');
+    if (dialogueText) {
+        dialogueText.innerHTML = node.text;
+    }
+    
+    // Clear and populate options
+    const optionsContainer = document.getElementById('ravi-dialogue-options');
+    if (optionsContainer) {
+        optionsContainer.innerHTML = '';
+        
+        node.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'dialogue-option-btn';
+            button.textContent = option.text;
+            
+            button.onclick = () => {
+                console.log('Button clicked:', option.text, 'Next:', option.nextNode, 'Action:', option.action);
+                
+                if (option.trust) {
+                    gameState.updateCharacterRelationship('ravi', option.trust);
+                    gameState.addXP(option.trust, 'Building Friendship');
+                }
+                
+                if (option.action === 'start_street_view') {
+                    console.log('Starting street view exploration...');
+                    startMarinaBeachQuestDirectly();
+                } else if (option.nextNode) {
+                    showRaviConversation(option.nextNode);
+                }
+            };
+            
+            optionsContainer.appendChild(button);
+        });
+    }
+    
+    // Add transition effect
+    if (raviScene) {
+        raviScene.style.opacity = '0';
+        setTimeout(() => {
+            raviScene.style.opacity = '1';
+        }, 100);
+    }
+}
+
+// Marina Beach quest function
+function startMarinaBeachQuestDirectly() {
+    console.log('Starting Marina Beach quest directly...');
+    
+    // Verify map is ready
+    if (!globalMap) {
+        console.error('Map not ready, waiting...');
+        setTimeout(startMarinaBeachQuestDirectly, 1000);
+        return;
+    }
+    
+    if (!globalStartQuestFunction) {
+        console.error('StartQuest function not ready, waiting...');
+        setTimeout(startMarinaBeachQuestDirectly, 1000);
+        return;
+    }
+    
+    // Hide Ravi scene and show map
+    const raviScene = document.getElementById('ravi-scene');
+    const mapElement = document.getElementById('map');
+    
+    if (raviScene) raviScene.style.display = 'none';
+    if (mapElement) mapElement.style.display = 'block';
+    
+    // Update chittu with transition message
+    const chittuText = document.getElementById('chittu-text');
+    if (chittuText) {
+        chittuText.textContent = "Following Ravi to explore Marina Beach...";
+    }
+    
+    // Create Marina Beach quest object
+    const marinaQuest = {
+        id: 1,
+        name: "Marina Beach",
+        location: { lat: 13.0500, lng: 80.2824 },
+        challenge: "Ravi asks: 'You see the endless sea for the first time! How do you say 'What is this?' in Tamil?'",
+        options: ["இது என்ன? (Ithu enna?)", "எங்கே? (Engay?)", "நன்றி (Nandri)"],
+        correctAnswer: "இது என்ன? (Ithu enna?)",
+        cultureCard: {
+            title: "Marina Beach",
+            fact: "At 13km long, Marina Beach is the world's second-longest urban beach! Ravi's family has been fishing here for generations.",
+            art: "🏖️"
+        },
+        baseXP: 25,
+        speedBonusTime: 15
+    };
+    
+    // Create a fake marker for compatibility
+    const fakeMarinaMarker = {
+        setIcon: function(iconConfig) {
+            console.log('Marina Beach marker updated:', iconConfig);
+            if (window.marinaBechMarkerReference) {
+                window.marinaBechMarkerReference.setIcon(iconConfig);
+                window.marinaBechMarkerReference.setAnimation(null);
+            }
+        },
+        setAnimation: function(animation) {
+            console.log('Marina Beach marker animation:', animation);
+        }
+    };
+    
+    // Wait a moment then call the quest function
+    setTimeout(() => {
+        console.log('Calling startQuest function...');
+        if (globalStartQuestFunction) {
+            globalStartQuestFunction(marinaQuest, fakeMarinaMarker);
+        } else {
+            console.error('StartQuest function still not available!');
+        }
+    }, 1000);
 }
 
 function runMainGameLogic() {
@@ -877,18 +1277,26 @@ function runMainGameLogic() {
     ];
 
     initMap(startDestination);
-    templeToggleButton.addEventListener('click', () => { wordTemple.classList.toggle('is-visible'); });
+    
+    if (templeToggleButton && wordTemple) {
+        templeToggleButton.addEventListener('click', () => { 
+            wordTemple.classList.toggle('is-visible'); 
+        });
+    }
+    
     window.addEventListener('click', (event) => { 
-        if (wordTemple.classList.contains('is-visible') && 
+        if (wordTemple && wordTemple.classList.contains('is-visible') && 
             !wordTemple.contains(event.target) && 
-            !templeToggleButton.contains(event.target)) { 
+            (!templeToggleButton || !templeToggleButton.contains(event.target))) { 
             wordTemple.classList.remove('is-visible'); 
         } 
     });
     
     function initMap(startDest) { 
         loadProgress(); 
-        map = new google.maps.Map(document.getElementById("map"), { 
+        
+        // Set global map reference
+        globalMap = new google.maps.Map(document.getElementById("map"), { 
             center: { lat: 13.06, lng: 80.25 }, 
             zoom: 13, 
             streetViewControl: false, 
@@ -897,13 +1305,19 @@ function runMainGameLogic() {
             disableDefaultUI: true 
         }); 
         
-        const speechBubble = document.getElementById('chittu-speech-bubble'); 
-        setTimeout(() => { 
-            speechBubble.style.opacity = '1'; 
-            speechBubble.style.transform = 'scale(1)'; 
-        }, 1000); 
+        console.log('Map initialized:', globalMap);
         
-        if (gameState.learnedWords.length > 0) templeToggleButton.style.display = 'flex'; 
+        const speechBubble = document.getElementById('chittu-speech-bubble'); 
+        if (speechBubble) {
+            setTimeout(() => { 
+                speechBubble.style.opacity = '1'; 
+                speechBubble.style.transform = 'scale(1)'; 
+            }, 1000); 
+        }
+        
+        if (gameState.learnedWords.length > 0 && templeToggleButton) {
+            templeToggleButton.style.display = 'flex'; 
+        }
         
         quests.forEach(q => { 
             const isCompleted = gameState.completedQuests.includes(q.id); 
@@ -911,7 +1325,7 @@ function runMainGameLogic() {
             
             const marker = new google.maps.Marker({ 
                 position: q.location, 
-                map: map, 
+                map: globalMap, 
                 title: `Quest: ${q.name}`, 
                 icon: { 
                     url: isCompleted ? 
@@ -922,36 +1336,87 @@ function runMainGameLogic() {
                 animation: (isCompleted || q.name !== startDest) ? null : google.maps.Animation.BOUNCE 
             }); 
             
-            if (q.name === startDest) chittuText.innerText = `Welcome to ${startDest}! Click the bouncing marker to begin.`; 
-            if (!isCompleted || masteryLevel < 3) {
-                marker.addListener('click', () => { 
-                    marker.setAnimation(null); 
-                    startQuest(q, marker); 
-                }); 
+            // Store Marina Beach marker reference
+            if (q.name === "Marina Beach") {
+                window.marinaBechMarkerReference = marker;
             }
+            
+            if (q.name === startDest && chittuText) {
+                chittuText.innerText = `Welcome to ${startDest}! Click the bouncing marker to begin.`;
+            }
+            
+            marker.addListener('click', () => { 
+                marker.setAnimation(null);
+                console.log('Marker clicked:', q.name);
+                
+                // If it's Marina Beach, show Ravi conversation first
+                if (q.name === "Marina Beach") {
+                    console.log('Starting Ravi conversation...');
+                    showRaviConversation('introduction');
+                } else {
+                    startQuest(q, marker);
+                }
+            }); 
         }); 
     }
                 
+    // startQuest function
     function startQuest(quest, marker) {    
+        console.log('StartQuest called for:', quest.name);
+        
+        if (!globalMap) {
+            console.error('Map not ready for startQuest!');
+            return;
+        }
+        
         const startTime = Date.now();
-        chittuText.innerText = `Aha! Let's see where we are...`;
+        if (chittuText) {
+            chittuText.innerText = quest.name === "Marina Beach" ? 
+                "Here we are at Marina Beach with Ravi! He's asking you a question..." : 
+                `Aha! Let's see where we are...`;
+        }
+            
+        console.log('Starting Street View for location:', quest.location);
         showStreetView(quest.location);
 
         setTimeout(() => {
-            document.getElementById('quest-title').innerText = "Guess this place!";
-            document.getElementById('quest-challenge').innerText = quest.challenge;
-            const optionsContainer = document.getElementById('quest-options-main');
-            optionsContainer.innerHTML = '';
+            console.log('Setting up quest UI for:', quest.name);
             
-            quest.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.innerText = opt;
-                btn.onclick = (event) => checkAnswer(event.target, opt, quest, marker, startTime);
-                optionsContainer.appendChild(btn);
-            });
-            questBox.style.top = '20px';
+            const questTitle = document.getElementById('quest-title');
+            const questChallenge = document.getElementById('quest-challenge');
+            const optionsContainer = document.getElementById('quest-options-main');
+            
+            if (questTitle) {
+                questTitle.innerText = quest.name === "Marina Beach" ? 
+                    "Learning with Ravi" : "Guess this place!";
+            }
+            
+            if (questChallenge) {
+                questChallenge.innerText = quest.challenge;
+            }
+            
+            if (optionsContainer) {
+                optionsContainer.innerHTML = '';
+                
+                quest.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.innerText = opt;
+                    btn.onclick = (event) => checkAnswer(event.target, opt, quest, marker, startTime);
+                    optionsContainer.appendChild(btn);
+                });
+            }
+            
+            if (questBox) {
+                questBox.style.top = '20px';
+            }
+            
+            console.log('Quest UI setup complete for:', quest.name);
         }, 2000);
     }
+
+    // Store global reference to startQuest
+    globalStartQuestFunction = startQuest;
+    console.log('StartQuest function reference stored globally');
 
     function checkAnswer(buttonElement, selected, quest, marker, startTime) { 
         const allButtons = buttonElement.parentElement.children; 
@@ -967,9 +1432,9 @@ function runMainGameLogic() {
             gameState.correctAnswers++;
             
             setTimeout(() => { 
-                // Calculate XP with bonuses
                 let xpGained = quest.baseXP;
-                let bonusText = 'Correct Answer!';
+                let bonusText = quest.name === "Marina Beach" ? 
+                    'Correct! Ravi is impressed!' : 'Correct Answer!';
                 
                 if (isSpeedBonus) {
                     xpGained += 10;
@@ -977,40 +1442,38 @@ function runMainGameLogic() {
                     gameState.updateDailyQuest('speed');
                 }
 
-                // Check for perfect round (first try)
                 const currentMastery = gameState.masteryStars[quest.id] || 0;
                 if (currentMastery === 0) {
                     xpGained += 5;
-                    bonusText += ' First Clear!';
+                    bonusText += quest.name === "Marina Beach" ? ' First Visit!' : ' First Clear!';
                     gameState.updateDailyQuest('perfect');
                 }
 
-                // Update mastery stars
                 gameState.masteryStars[quest.id] = Math.min((gameState.masteryStars[quest.id] || 0) + 1, 3);
 
-                // Add to completed quests if not already there
                 if (!gameState.completedQuests.includes(quest.id)) {
                     gameState.completedQuests.push(quest.id);
                     gameState.updateDailyQuest('identify');
                 }
 
-                // Add learned word
                 if (!gameState.learnedWords.includes(quest.correctAnswer)) {
                     gameState.learnedWords.push(quest.correctAnswer);
                     gameState.updateDailyQuest('words');
                 }
 
-                // Add culture card
                 if (!gameState.cultureCards.find(c => c.title === quest.cultureCard.title)) {
                     gameState.cultureCards.push(quest.cultureCard);
                     gameState.updateDailyQuest('culture');
                 }
 
-                // Check for area exploration
                 gameState.updateDailyQuest('explore');
-
                 gameState.addXP(xpGained, bonusText);
-                chittuText.innerText = `Correct! I've added '${quest.correctAnswer}' to your Word Temple.`;
+                
+                if (chittuText) {
+                    chittuText.innerText = quest.name === "Marina Beach" ? 
+                        `Perfect! Ravi smiles and says "You're learning fast, my friend!" I've added '${quest.correctAnswer}' to your Word Temple.` :
+                        `Correct! I've added '${quest.correctAnswer}' to your Word Temple.`;
+                }
 
                 updateWordTemple(); 
                 marker.setIcon({ 
@@ -1019,34 +1482,41 @@ function runMainGameLogic() {
                 }); 
                 marker.setAnimation(null); 
 
-                // Show mastery stars
-                const masteryDisplay = document.createElement('div');
-                masteryDisplay.className = 'mastery-stars';
-                const currentStars = gameState.masteryStars[quest.id] || 0;
-                for (let i = 1; i <= 3; i++) {
-                    const star = document.createElement('span');
-                    star.className = `mastery-star ${i <= currentStars ? 'earned' : ''}`;
-                    star.textContent = '⭐';
-                    masteryDisplay.appendChild(star);
+                if (optionsContainer) {
+                    const masteryDisplay = document.createElement('div');
+                    masteryDisplay.className = 'mastery-stars';
+                    const currentStars = gameState.masteryStars[quest.id] || 0;
+                    for (let i = 1; i <= 3; i++) {
+                        const star = document.createElement('span');
+                        star.className = `mastery-star ${i <= currentStars ? 'earned' : ''}`;
+                        star.textContent = '⭐';
+                        masteryDisplay.appendChild(star);
+                    }
+
+                    optionsContainer.innerHTML = '';
+                    optionsContainer.appendChild(masteryDisplay);
+
+                    const continueBtn = document.createElement('button');
+                    continueBtn.innerText = "Continue Learning";
+                    continueBtn.onclick = () => { 
+                        if (questBox) questBox.style.top = '-350px'; 
+                        
+                        const mapContainer = document.getElementById('map-container');
+                        if (mapContainer) {
+                            mapContainer.classList.remove('map-zoom-out');
+                        }
+                        
+                        if (globalMap && globalMap.getStreetView()) {
+                            globalMap.getStreetView().setVisible(false);
+                        }
+                        
+                        if (chittuText) {
+                            chittuText.innerText = "Where to next? Click a quest marker on the map!";
+                        }
+                    };
+                    optionsContainer.appendChild(continueBtn);
                 }
 
-                optionsContainer.innerHTML = '';
-                optionsContainer.appendChild(masteryDisplay);
-
-                const continueBtn = document.createElement('button');
-                continueBtn.innerText = "Continue Exploring";
-                continueBtn.onclick = () => { 
-                    questBox.style.top = '-350px'; 
-                    const mapContainer = document.getElementById('map-container');
-                    mapContainer.classList.remove('map-zoom-out');
-                    if (map.getStreetView()) {
-                        map.getStreetView().setVisible(false);
-                    }
-                    chittuText.innerText = "Where to next? Click a quest marker on the map!";
-                };
-                optionsContainer.appendChild(continueBtn);
-
-                // Check for mystery chest
                 gameState.checkMysteryChest();
 
             }, 1000); 
@@ -1055,8 +1525,14 @@ function runMainGameLogic() {
             gameState.playSound('incorrect');
             
             setTimeout(() => { 
-                chittuText.innerText = "Not quite! Try again."; 
+                if (chittuText) {
+                    chittuText.innerText = quest.name === "Marina Beach" ? 
+                        "Ravi gently corrects: 'Try again, my friend. Listen to the waves and think...'" :
+                        "Not quite! Try again."; 
+                }
+                
                 marker.setAnimation(google.maps.Animation.BOUNCE); 
+                
                 for(let btn of allButtons) { 
                     btn.disabled = false; 
                     btn.classList.remove('incorrect'); 
@@ -1066,8 +1542,7 @@ function runMainGameLogic() {
     }
 
     function loadProgress() { 
-        // This function is called from the global gameState, but we need local compatibility
-        if (gameState.learnedWords.length > 0) {
+        if (gameState.learnedWords.length > 0 && templeToggleButton) {
             templeToggleButton.style.display = 'flex';
         }
         updateWordTemple();
@@ -1076,6 +1551,8 @@ function runMainGameLogic() {
     function updateWordTemple() {
         const wl = document.getElementById('word-list');
         const toggleButton = document.getElementById('temple-toggle-button');
+        if (!wl || !toggleButton) return;
+        
         wl.innerHTML = '';
         gameState.learnedWords.forEach(w => { 
             const li = document.createElement('li'); 
@@ -1085,23 +1562,5 @@ function runMainGameLogic() {
         if (gameState.learnedWords.length > 0) {
             toggleButton.style.display = 'flex';
         }
-    }
-    
-    function showStreetView(location) { 
-        const mapContainer = document.getElementById('map-container'); 
-        mapContainer.classList.add('map-zoom-out'); 
-        setTimeout(() => { 
-            const pano = new google.maps.StreetViewPanorama(document.getElementById("map"), { 
-                position: location, 
-                pov: { heading: 200, pitch: 10 }, 
-                visible: true, 
-                addressControl: false, 
-                linksControl: true, 
-                panControl: true, 
-                fullscreenControl: false 
-            }); 
-            map.setStreetView(pano); 
-            setTimeout(() => mapContainer.classList.remove('map-zoom-out'), 50); 
-        }, 800); 
     }
 }
