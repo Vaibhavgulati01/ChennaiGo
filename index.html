@@ -10,10 +10,9 @@
             overflow: hidden; background-color: #f0f2f5;
         }
 
-        /* --- UPDATED: Start Screen Styles --- */
+        /* --- Start Screen Styles --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* UPDATED: Using your custom background image */
             background: url('landing_page.jpg') no-repeat center center;
             background-size: cover;
             z-index: 4000;
@@ -47,12 +46,12 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
-        /* --- Intro Animation Styles (Now initially hidden) --- */
+        /* --- Intro Animation Styles --- */
         #intro-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, #87CEEB 0%, #f0f0f0 100%);
             z-index: 3000;
-            display: none; /* Hidden by default */
+            display: none;
             align-items: center; justify-content: center; color: white;
             font-size: 2em; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
@@ -61,18 +60,268 @@
         #intro-fade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; opacity: 0; animation: fade-in 2s 6s forwards; }
         @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
 
-        /* --- Dialogue Overlay Style --- */
+        /* --- Airport Road Scene Styles --- */
+        #airport-road-scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 30%, #228B22 30%, #228B22 70%, #333333 70%);
+            z-index: 2500;
+            display: none;
+            overflow: hidden;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        /* Road with multiple lanes */
+        #busy-road {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, 
+                #333333 0%, #333333 15%, 
+                #FFFF00 15%, #FFFF00 17%, 
+                #333333 17%, #333333 30%,
+                #FFFF00 30%, #FFFF00 32%,
+                #333333 32%, #333333 45%,
+                #FFFF00 45%, #FFFF00 47%,
+                #333333 47%, #333333 60%,
+                #FFFF00 60%, #FFFF00 62%,
+                #333333 62%, #333333 100%
+            );
+        }
+
+        /* Traffic cars moving in different lanes */
+        .traffic-car {
+            position: absolute;
+            font-size: 35px;
+            animation: drive-traffic linear infinite;
+        }
+
+        .lane-1 { bottom: 45%; animation-duration: 4s; }
+        .lane-2 { bottom: 35%; animation-duration: 5s; }
+        .lane-3 { bottom: 25%; animation-duration: 4.5s; }
+        .lane-4 { bottom: 15%; animation-duration: 3.5s; }
+
+        .car-delay-1 { animation-delay: 0s; }
+        .car-delay-2 { animation-delay: 1s; }
+        .car-delay-3 { animation-delay: 2s; }
+        .car-delay-4 { animation-delay: 3s; }
+        .car-delay-5 { animation-delay: 1.5s; }
+        .car-delay-6 { animation-delay: 2.5s; }
+
+        @keyframes drive-traffic {
+            0% { left: -80px; }
+            100% { left: 100%; }
+        }
+
+        /* Sidewalk */
+        #sidewalk {
+            position: absolute;
+            bottom: 50%;
+            width: 100%;
+            height: 15%;
+            background: linear-gradient(to bottom, #C0C0C0 0%, #A9A9A9 100%);
+            border-top: 2px solid #808080;
+            border-bottom: 2px solid #808080;
+        }
+
+        /* Auto rickshaw parked on side */
+        #parked-auto {
+            position: absolute;
+            right: 20%;
+            bottom: 52%;
+            font-size: 80px;
+            z-index: 2600;
+            transform: scaleX(-1); /* Facing left toward user */
+        }
+
+        /* Full body auto driver */
+        #driver-anna-full {
+            position: absolute;
+            right: 25%;
+            bottom: 52%;
+            z-index: 2601;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Driver's head */
+        #driver-head {
+            font-size: 40px;
+            animation: head-turn 3s ease-in-out infinite;
+        }
+
+        /* Driver's body */
+        #driver-body {
+            font-size: 50px;
+            margin-top: -10px;
+        }
+
+        /* Driver's legs */
+        #driver-legs {
+            font-size: 30px;
+            margin-top: -15px;
+        }
+
+        /* Waving hand animation */
+        #driver-hand {
+            position: absolute;
+            top: 15px;
+            right: -20px;
+            font-size: 25px;
+            animation: wave-hand 1.5s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        @keyframes wave-hand {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(30deg); }
+            75% { transform: rotate(-30deg); }
+        }
+
+        @keyframes head-turn {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        /* Airport building silhouette */
+        #airport-building {
+            position: absolute;
+            left: 5%;
+            bottom: 65%;
+            width: 200px;
+            height: 100px;
+            background: linear-gradient(to bottom, #4A4A4A 0%, #2C2C2C 100%);
+            border-radius: 10px 10px 0 0;
+        }
+
+        #airport-building::before {
+            content: '✈️';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+        }
+
+        #airport-building::after {
+            content: 'AIRPORT';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Trees and background elements */
+        .street-tree {
+            position: absolute;
+            bottom: 65%;
+            font-size: 60px;
+            z-index: 100;
+        }
+
+        #tree1 { left: 30%; }
+        #tree2 { left: 60%; }
+        #tree3 { right: 5%; }
+
+        /* Street dialogue box */
+        #street-dialogue-box {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            padding: 25px;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(-50%) translateY(-30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        #street-dialogue-box.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Speech bubble pointing to driver */
+        #street-dialogue-box::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 20%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-top-color: rgba(255, 255, 255, 0.95);
+        }
+
+        #street-dialogue-box h3 { 
+            margin-top: 0; 
+            color: #333; 
+            font-size: 1.3em; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        #street-dialogue-box p { 
+            color: #555; 
+            font-size: 1.1em; 
+            line-height: 1.6; 
+            margin: 15px 0;
+        }
+        #street-dialogue-options button {
+            display: block; 
+            width: 100%; 
+            padding: 15px; 
+            margin: 12px 0; 
+            border: 2px solid #ddd; 
+            border-radius: 15px; 
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            font-size: 1em; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        #street-dialogue-options button:hover { 
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-color: #007bff; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #street-dialogue-options button:active { 
+            transform: translateY(0);
+        }
+
+        .driver-name { 
+            font-weight: bold; 
+            color: #d9534f; 
+        } 
+        .tamil-word { 
+            font-style: italic; 
+            color: #0056b3; 
+            font-weight: 600;
+        }
+
+        /* Original preserved styles */
         #dialogue-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 2000; opacity: 0; transition: opacity 0.5s ease-in-out; pointer-events: none; }
         #dialogue-overlay.is-visible { opacity: 1; pointer-events: auto; }
-
-        /* --- Dialogue Box Styles --- */
         #dialogue-box { position: absolute; bottom: -500px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background-color: #fff; border-radius: 20px; box-shadow: 0 6px 12px rgba(0,0,0,0.25); padding: 25px; z-index: 2001; transition: bottom 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; }
         #dialogue-box h3 { margin-top: 0; color: #333; font-size: 1.2em; } #dialogue-box p { color: #555; font-size: 1.1em; line-height: 1.5; }
         #dialogue-options button { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 12px; background-color: #fff; font-size: 1em; cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.1s; }
         #dialogue-options button:hover { background-color: #f5f5f5; border-color: #007bff; } #dialogue-options button:active { transform: scale(0.98); }
-        .driver-name { font-weight: bold; color: #d9534f; } .tamil-word { font-style: italic; color: #0056b3; }
 
-        /* --- Main Game Styles --- */
+        /* Main Game Styles */
         #map-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s, transform 0.8s ease-in-out; z-index: 500; }
         .map-zoom-out { transform: scale(2); opacity: 0 !important; }
         #map { height: 100%; width: 100%; }
@@ -86,7 +335,7 @@
         .incorrect { animation: shake-horizontal 0.5s, flash-red 0.8s forwards; } @keyframes flash-red { 0% { background-color: #ffcdd2; border-color: #f44336; } 100% { background-color: #fff; border-color: #ccc; } }
         @keyframes shake-horizontal { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
 
-        /* --- Word Temple Dropdown Styles --- */
+        /* Word Temple Dropdown Styles */
         #word-temple { position: absolute; top: 90px; right: 20px; width: 300px; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); padding: 20px; z-index: 1002; opacity: 0; visibility: hidden; transform: translateY(-20px); transition: opacity 0.3s, transform 0.3s, visibility 0.3s; }
         #word-temple.is-visible { opacity: 1; transform: translateY(0); visibility: visible; }
         #word-temple h2 { margin-top: 0; text-align: center; } #word-temple ul { list-style: none; padding: 0; } #word-temple li { background-color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -101,18 +350,95 @@
     </div>
 
     <div id="intro-container"><div id="airplane">✈️</div><p>Traveling to Chennai...</p><div id="intro-fade"></div></div>
+    
+    <!-- Airport Road Scene with Traffic -->
+    <div id="airport-road-scene">
+        <!-- Background elements -->
+        <div id="airport-building"></div>
+        <div id="tree1" class="street-tree">🌳</div>
+        <div id="tree2" class="street-tree">🌳</div>
+        <div id="tree3" class="street-tree">🌳</div>
+        
+        <!-- Sidewalk -->
+        <div id="sidewalk"></div>
+        
+        <!-- Busy road with multiple lanes -->
+        <div id="busy-road"></div>
+        
+        <!-- Traffic cars in different lanes -->
+        <div class="traffic-car lane-1 car-delay-1">🚗</div>
+        <div class="traffic-car lane-2 car-delay-2">🚙</div>
+        <div class="traffic-car lane-3 car-delay-3">🚐</div>
+        <div class="traffic-car lane-4 car-delay-4">🚕</div>
+        <div class="traffic-car lane-1 car-delay-5">🚘</div>
+        <div class="traffic-car lane-2 car-delay-6">🚖</div>
+        
+        <!-- Parked auto rickshaw -->
+        <div id="parked-auto">🛺</div>
+        
+        <!-- Full body auto driver Anna -->
+        <div id="driver-anna-full">
+            <div id="driver-head">👨‍🦱</div>
+            <div id="driver-hand">👋</div>
+            <div id="driver-body">👔</div>
+            <div id="driver-legs">👖</div>
+        </div>
+        
+        <!-- Dialogue box -->
+        <div id="street-dialogue-box">
+            <h3 id="street-dialogue-character"></h3>
+            <p id="street-dialogue-text"></p>
+            <div id="street-dialogue-options"></div>
+        </div>
+    </div>
+
+    <!-- Original Dialogue System (kept for compatibility) -->
     <div id="dialogue-overlay"></div>
     <div id="dialogue-box"><h3 id="dialogue-character"></h3><p id="dialogue-text"></p><div id="dialogue-options"></div></div>
+    
     <div id="map-container"></div>
 
     <script>
-        // --- API KEY - PASTE YOUR KEY HERE ---
+        // --- API KEY ---
         const apiKey = "AIzaSyCw00QVSfWSQzS7DZq8yjxPsTI6NMuGm2A";
         let map; let startDestinationForMap;
-        const dialogueBox = document.getElementById('dialogue-box'); const dialogueCharacter = document.getElementById('dialogue-character'); const dialogueText = document.getElementById('dialogue-text'); const dialogueOptions = document.getElementById('dialogue-options');
-        const dialogueOverlay = document.getElementById('dialogue-overlay');
-
-        const script = { start: { character: "Driver Anna", text: "Welcome to Chennai, sir! Vanakkam! So, <i class='tamil-word'>enge pōnum</i>? Where to go?", options: [ { text: "I'd like to see a famous, ancient temple.", destination: "Kapaleeshwarar Temple" }, { text: "Take me to the biggest shopping area!", destination: "T. Nagar" }, { text: "I want to see the famous beach.", destination: "Marina Beach" } ], action: (choice) => showDialogueNode('learning_moment', choice.destination) }, learning_moment: { character: "Driver Anna", text: (dest) => `Ah, ${dest}! Super choice! To ask 'What is the price?', we say <i class='tamil-word'>'Vilai enna?'</i>. You understand? How do you ask for the price?`, options: [ { text: "Where is it?" }, { text: "What is the price?" }, { text: "Thank you" } ], action: (choice, dest) => { (choice.text === "What is the price?") ? showDialogueNode('correct_answer', dest) : showDialogueNode('wrong_answer', dest); } }, wrong_answer: { character: "Driver Anna", text: "Haha, not quite! Remember, it's <i class='tamil-word'>'Vilai enna?'</i>. Let's go!", options: [{ text: "Okay, let's go!" }], action: (c, d) => startGame(d) }, correct_answer: { character: "Driver Anna", text: "Exactly! <i class='tamil-word'>Nalla sonninga!</i> You're a fast learner! We're here!", options: [{ text: "Let's explore!" }], action: (c, d) => startGame(d) } };
+        
+        const script = { 
+            start: { 
+                character: "Auto Driver Anna", 
+                text: "Hey! Over here! Welcome to Chennai, sir! Vanakkam! I saw you coming from airport. <i class='tamil-word'>Enge pōnum</i>? Where do you want to go?", 
+                options: [ 
+                    { text: "I'd like to see a famous, ancient temple.", destination: "Kapaleeshwarar Temple" }, 
+                    { text: "Take me to the biggest shopping area!", destination: "T. Nagar" }, 
+                    { text: "I want to see the famous beach.", destination: "Marina Beach" } 
+                ], 
+                action: (choice) => showStreetDialogueNode('learning_moment', choice.destination) 
+            }, 
+            learning_moment: { 
+                character: "Auto Driver Anna", 
+                text: (dest) => `Ah, ${dest}! Excellent choice, sir! Before we go, let me teach you something. To ask 'What is the price?' in Tamil, we say <i class='tamil-word'>'Vilai enna?'</i>. Can you repeat it back to me?`, 
+                options: [ 
+                    { text: "Where is it?" }, 
+                    { text: "What is the price?" }, 
+                    { text: "Thank you" } 
+                ], 
+                action: (choice, dest) => { 
+                    (choice.text === "What is the price?") ? showStreetDialogueNode('correct_answer', dest) : showStreetDialogueNode('wrong_answer', dest); 
+                } 
+            }, 
+            wrong_answer: { 
+                character: "Auto Driver Anna", 
+                text: "Haha, close but not quite! Remember, it's <i class='tamil-word'>'Vilai enna?'</i> Don't worry, you'll learn. Hop in, let's go!", 
+                options: [{text: "Okay, let's go!"}], 
+                action: (c, d) => startGame(d) 
+            }, 
+            correct_answer: { 
+                character: "Auto Driver Anna", 
+                text: "Perfect! <i class='tamil-word'>Nalla sonninga!</i> You're a quick learner! Come, get in my auto. We're going to have fun exploring Chennai!", 
+                options: [{text: "Let's explore Chennai!"}], 
+                action: (c, d) => startGame(d) 
+            } 
+        };
 
         window.onload = () => {
             const startButton = document.getElementById('start-button');
@@ -127,21 +453,59 @@
 
         function startDialogue() {
             document.getElementById('intro-container').style.display = 'none';
-            dialogueOverlay.classList.add('is-visible');
-            showDialogueNode('start');
+            
+            // Show airport road scene
+            document.getElementById('airport-road-scene').style.display = 'block';
+            
+            setTimeout(() => {
+                showStreetDialogueNode('start');
+            }, 2000); // Allow scene to load with traffic animation
         }
-        function showDialogueNode(nodeKey, context = null) {
-            const node = script[nodeKey]; dialogueCharacter.innerHTML = `<span class="driver-name">${node.character}</span>`; dialogueText.innerHTML = typeof node.text === 'function' ? node.text(context) : node.text; dialogueOptions.innerHTML = '';
-            node.options.forEach(option => { const button = document.createElement('button'); button.innerText = option.text; button.onclick = () => node.action(option, context); dialogueOptions.appendChild(button); });
-            dialogueBox.style.bottom = '20px';
+
+        function showStreetDialogueNode(nodeKey, context = null) {
+            const node = script[nodeKey];
+            const streetDialogueBox = document.getElementById('street-dialogue-box');
+            const streetDialogueCharacter = document.getElementById('street-dialogue-character');
+            const streetDialogueText = document.getElementById('street-dialogue-text');
+            const streetDialogueOptions = document.getElementById('street-dialogue-options');
+            
+            streetDialogueCharacter.innerHTML = `<span class="driver-name">${node.character}</span>`;
+            streetDialogueText.innerHTML = typeof node.text === 'function' ? node.text(context) : node.text;
+            streetDialogueOptions.innerHTML = '';
+            
+            node.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option.text;
+                button.onclick = () => node.action(option, context);
+                streetDialogueOptions.appendChild(button);
+            });
+            
+            // Animate dialogue box appearance
+            setTimeout(() => {
+                streetDialogueBox.classList.add('show');
+            }, 1000);
         }
+
         function startGame(destination) {
-            startDestinationForMap = destination; dialogueBox.style.bottom = '-500px'; dialogueOverlay.classList.remove('is-visible');
-            const mapContainer = document.getElementById('map-container'); mapContainer.style.opacity = '1'; injectMainGameUI();
+            startDestinationForMap = destination;
+            
+            // Hide airport road scene with fade out
+            const airportScene = document.getElementById('airport-road-scene');
+            airportScene.style.opacity = '0';
+            setTimeout(() => {
+                airportScene.style.display = 'none';
+            }, 500);
+
+            const mapContainer = document.getElementById('map-container'); 
+            mapContainer.style.opacity = '1'; 
+            injectMainGameUI();
             window.runMainGameLogic = runMainGameLogic;
-            const scriptTag = document.createElement('script'); scriptTag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=runMainGameLogic`; scriptTag.async = true; scriptTag.onerror = () => { console.error("FATAL: Google Maps script failed to load."); };
+            const scriptTag = document.createElement('script'); 
+            scriptTag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=runMainGameLogic`; 
+            scriptTag.async = true; 
             document.head.appendChild(scriptTag);
         }
+
         function injectMainGameUI() {
             document.getElementById('map-container').innerHTML = `
                 <div id="map"></div>
@@ -152,97 +516,95 @@
         }
 
         function runMainGameLogic() {
-            const startDestination = startDestinationForMap; const chittuText = document.getElementById('chittu-text'); const questBox = document.getElementById('quest-box');
+            const startDestination = startDestinationForMap; 
+            const chittuText = document.getElementById('chittu-text'); 
+            const questBox = document.getElementById('quest-box');
             const wordTemple = document.getElementById('word-temple');
             const templeToggleButton = document.getElementById('temple-toggle-button');
             let playerProgress = { completedQuests: [], learnedWords: [] };
 
-
-        //nice 
-        const quests = [
-    {
-        id: 1,
-        name: "Marina Beach",
-        location: { lat: 13.0500, lng: 80.2824 },
-        challenge: "You see the sea for the first time! How do you ask 'What is this?' in Tamil?",
-        options: ["இது என்ன? (Ithu enna?)", "எங்கே? (Engay?)", "நன்றி (Nandri)"],
-        correctAnswer: "இது என்ன? (Ithu enna?)"
-    },
-    {
-        id: 2,
-        name: "Kapaleeshwarar Temple",
-        location: { lat: 13.0337, lng: 80.2698 },
-        challenge: "You want to enter the temple. How do you politely ask 'May I enter?' in Tamil?",
-        options: ["நான் நுழையலாமா? (Naan nuzhayalaamaa?)", "எங்கே? (Engay?)", "விலை என்ன? (Vilai enna?)"],
-        correctAnswer: "நான் நுழையலாமா? (Naan nuzhayalaamaa?)"
-    },
-    {
-        id: 3,
-        name: "T. Nagar",
-        location: { lat: 13.0418, lng: 80.2341 },
-        challenge: "You see a shirt you like. How do you ask 'How much does this cost?' in Tamil?",
-        options: ["விலை என்ன? (Vilai enna?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
-        correctAnswer: "விலை என்ன? (Vilai enna?)"
-    },
-    {
-        id: 4,
-        name: "Santhome Basilica",
-        location: { lat: 13.03349, lng: 80.2733 }, 
-        challenge: "You admire the church’s architecture. Which Tamil word means 'church'?",
-        options: ["சேர்ச்சி (Searchi)", "கோவில் (Kovil)", "முகில் (Mugil)"],
-        correctAnswer: "சேர்ச்சி (Searchi)"
-    },
-    {
-        id: 5,
-        name: "Valluvar Kottam",
-        location: { lat: 13.0544, lng: 80.2418 },
-        challenge: "You want to ask about the famous poet. How do you say 'Who wrote this?' in Tamil?",
-        options: ["இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
-        correctAnswer: "இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)"
-    },
-    {
-        id: 6,
-        name: "St. Thomas Mount",
-        location: { lat: 13.007806, lng: 80.192500 },
-        challenge: "You are on top of the hill and want to say 'It’s high!' in Tamil. How?",
-        options: ["உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)", "கீழே போ! (Keezhe po!)", "நன்றி! (Nandri!)"],
-        correctAnswer: "உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)"
-    },
-    {
-        id: 7,
-        name: "Express Avenue",
-        location: { lat: 13.058974, lng: 80.264135 },
-        challenge: "You want to invite a friend to shop. How do you say 'Let’s go shopping!' in Tamil?",
-        options: ["வாங்க வாங்க! (Vaanga vaanga!)", "நம் செல்லலாம்! (Nam sellalaam!)", "வணிக மையம் (Vaniga Maiyam)"],
-        correctAnswer: "நம் செல்லலாம்! (Nam sellalaam!)"
-    },
-    {
-        id: 8,
-        name: "Guindy National Park",
-        location: { lat: 13.0036, lng: 80.2293 },
-        challenge: "You spot a deer. How do you say 'Look, a deer!' in Tamil?",
-        options: ["பாரு, மான்! (Paaru, maan!)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
-        correctAnswer: "பாரு, மான்! (Paaru, maan!)"
-    },
-    {
-        id: 9,
-        name: "Anna University",
-        location: { lat: 13.0111, lng: 80.2363 },
-        challenge: "You want to ask a student 'Which department is this?' in Tamil. How?",
-        options: ["இது எந்த துறை? (Idhu entha thurai?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
-        correctAnswer: "இது எந்த துறை? (Idhu entha thurai?)"
-    },
-    {
-        id: 10,
-        name: "Besant Nagar Beach",
-        location: { lat: 12.9989, lng: 80.2718 },
-        challenge: "You want to buy a coconut from a beach vendor. How do you ask 'How much for one?' in Tamil?",
-        options: ["ஒன்று எவ்வளவு? (Ondru evvalavu?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
-        correctAnswer: "ஒன்று எவ்வளவு? (Ondru evvalavu?)"
-    }
-];
-
-                    
+            const quests = [
+                {
+                    id: 1,
+                    name: "Marina Beach",
+                    location: { lat: 13.0500, lng: 80.2824 },
+                    challenge: "You see the sea for the first time! How do you ask 'What is this?' in Tamil?",
+                    options: ["இது என்ன? (Ithu enna?)", "எங்கே? (Engay?)", "நன்றி (Nandri)"],
+                    correctAnswer: "இது என்ன? (Ithu enna?)"
+                },
+                {
+                    id: 2,
+                    name: "Kapaleeshwarar Temple",
+                    location: { lat: 13.0337, lng: 80.2698 },
+                    challenge: "You want to enter the temple. How do you politely ask 'May I enter?' in Tamil?",
+                    options: ["நான் நுழையலாமா? (Naan nuzhayalaamaa?)", "எங்கே? (Engay?)", "விலை என்ன? (Vilai enna?)"],
+                    correctAnswer: "நான் நுழையலாமா? (Naan nuzhayalaamaa?)"
+                },
+                {
+                    id: 3,
+                    name: "T. Nagar",
+                    location: { lat: 13.0418, lng: 80.2341 },
+                    challenge: "You see a shirt you like. How do you ask 'How much does this cost?' in Tamil?",
+                    options: ["விலை என்ன? (Vilai enna?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
+                    correctAnswer: "விலை என்ன? (Vilai enna?)"
+                },
+                {
+                    id: 4,
+                    name: "Santhome Basilica",
+                    location: { lat: 13.03349, lng: 80.2733 }, 
+                    challenge: "You admire the church's architecture. Which Tamil word means 'church'?",
+                    options: ["சேர்ச்சி (Searchi)", "கோவில் (Kovil)", "முகில் (Mugil)"],
+                    correctAnswer: "சேர்ச்சி (Searchi)"
+                },
+                {
+                    id: 5,
+                    name: "Valluvar Kottam",
+                    location: { lat: 13.0544, lng: 80.2418 },
+                    challenge: "You want to ask about the famous poet. How do you say 'Who wrote this?' in Tamil?",
+                    options: ["இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
+                    correctAnswer: "இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)"
+                },
+                {
+                    id: 6,
+                    name: "St. Thomas Mount",
+                    location: { lat: 13.007806, lng: 80.192500 },
+                    challenge: "You are on top of the hill and want to say 'It's high!' in Tamil. How?",
+                    options: ["உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)", "கீழே போ! (Keezhe po!)", "நன்றி! (Nandri!)"],
+                    correctAnswer: "உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)"
+                },
+                {
+                    id: 7,
+                    name: "Express Avenue",
+                    location: { lat: 13.058974, lng: 80.264135 },
+                    challenge: "You want to invite a friend to shop. How do you say 'Let's go shopping!' in Tamil?",
+                    options: ["வாங்க வாங்க! (Vaanga vaanga!)", "நம் செல்லலாம்! (Nam sellalaam!)", "வணிக மையம் (Vaniga Maiyam)"],
+                    correctAnswer: "நம் செல்லலாம்! (Nam sellalaam!)"
+                },
+                {
+                    id: 8,
+                    name: "Guindy National Park",
+                    location: { lat: 13.0036, lng: 80.2293 },
+                    challenge: "You spot a deer. How do you say 'Look, a deer!' in Tamil?",
+                    options: ["பாரு, மான்! (Paaru, maan!)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
+                    correctAnswer: "பாரு, மான்! (Paaru, maan!)"
+                },
+                {
+                    id: 9,
+                    name: "Anna University",
+                    location: { lat: 13.0111, lng: 80.2363 },
+                    challenge: "You want to ask a student 'Which department is this?' in Tamil. How?",
+                    options: ["இது எந்த துறை? (Idhu entha thurai?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
+                    correctAnswer: "இது எந்த துறை? (Idhu entha thurai?)"
+                },
+                {
+                    id: 10,
+                    name: "Besant Nagar Beach",
+                    location: { lat: 12.9989, lng: 80.2718 },
+                    challenge: "You want to buy a coconut from a beach vendor. How do you ask 'How much for one?' in Tamil?",
+                    options: ["ஒன்று எவ்வளவு? (Ondru evvalavu?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
+                    correctAnswer: "ஒன்று எவ்வளவு? (Ondru evvalavu?)"
+                }
+            ];
 
             initMap(startDestination);
             templeToggleButton.addEventListener('click', () => { wordTemple.classList.toggle('is-visible'); });
@@ -261,11 +623,10 @@
                     if (!isCompleted) marker.addListener('click', () => { marker.setAnimation(null); startQuest(q, marker); }); 
                 }); 
             }
-
                         
             function startQuest(quest, marker) {    
                 chittuText.innerText = `Aha! Let's see where we are...`;
-                showStreetView(quest.location);  // show Street View first
+                showStreetView(quest.location);
 
                 setTimeout(() => {
                     document.getElementById('quest-title').innerText = "Guess this place!";
@@ -279,8 +640,9 @@
                         optionsContainer.appendChild(btn);
                     });
                     questBox.style.top = '20px';
-                }, 2000); // allow 2 seconds to view Street View
+                }, 2000);
             }
+
             function checkAnswer(buttonElement, selected, quest, marker) { 
                 const allButtons = buttonElement.parentElement.children; 
                 for(let btn of allButtons) btn.disabled = true; 
@@ -300,22 +662,16 @@
                         marker.setAnimation(null); 
                         google.maps.event.clearInstanceListeners(marker); 
 
-                        // Show "Continue Exploring" button
                         optionsContainer.innerHTML = '';
                         const continueBtn = document.createElement('button');
                         continueBtn.innerText = "Continue Exploring";
                         continueBtn.onclick = () => { 
                             questBox.style.top = '-350px'; 
-
-                            // **Switch back to normal 2D map**
                             const mapContainer = document.getElementById('map-container');
-                            mapContainer.classList.remove('map-zoom-out');  // restore zoom-out class if applied
-
-                            // Remove Street View
+                            mapContainer.classList.remove('map-zoom-out');
                             if (map.getStreetView()) {
                                 map.getStreetView().setVisible(false);
                             }
-
                             chittuText.innerText = "Where to next? Click a quest marker on the map!";
                         };
                         optionsContainer.appendChild(continueBtn);
@@ -330,7 +686,6 @@
                     }, 1200); 
                 } 
             }
-
 
             function saveProgress() { localStorage.setItem('chennaiGoProgress', JSON.stringify(playerProgress)); }
             function loadProgress() { const d = localStorage.getItem('chennaiGoProgress'); if (d) { playerProgress = JSON.parse(d); updateWordTemple(); } }
@@ -356,4 +711,3 @@
     </script>
 </body>
 </html>
-
