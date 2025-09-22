@@ -74,9 +74,56 @@
   <!-- Map container -->
   <div id="map-container"></div>
 
+  <!-- Mystery Chest Modal -->
+  <div id="mystery-chest-modal" class="modal">
+    <div class="modal-content">
+      <div class="chest-container">
+        <div id="mystery-chest" class="chest-closed">📦</div>
+        <p id="chest-message">Click to open your reward!</p>
+        <div id="chest-rewards"></div>
+        <button id="close-chest-btn" style="display:none;">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Up Modal -->
+  <div id="level-up-modal" class="modal">
+    <div class="modal-content level-up-content">
+      <div class="level-up-animation">
+        <h2>🎉 LEVEL UP! 🎉</h2>
+        <div class="level-display">
+          <span id="new-level">Level 2</span>
+        </div>
+        <p id="level-reward-text">New skills unlocked!</p>
+        <button id="close-level-btn">Awesome!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Quest Panel -->
+  <div id="daily-quest-panel">
+    <div class="quest-header">
+      <h3>📋 Daily Quests</h3>
+      <button id="toggle-quests">−</button>
+    </div>
+    <div id="daily-quests-list"></div>
+  </div>
+
+  <!-- Streak Display -->
+  <div id="streak-display">
+    <div class="streak-info">
+      <span class="streak-icon">🔥</span>
+      <span id="streak-count">0</span>
+      <span class="streak-text">day streak</span>
+    </div>
+  </div>
+
+  <!-- Session Timer -->
+  <div id="session-timer">
+    <span id="session-time">00:00</span>
+  </div>
+
   <!-- External JS -->
-   <script type="module" src="./script/main.js"></script>
-
-
+  <script type="module" src="./script/main.js"></script>
 </body>
 </html>
