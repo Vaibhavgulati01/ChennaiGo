@@ -93,11 +93,23 @@
             );
         }
 
-        /* Traffic cars moving in different lanes */
+        /* Traffic cars using custom images */
         .traffic-car {
             position: absolute;
-            font-size: 35px;
+            width: 80px;
+            height: 40px;
+            background-size: contain;
+            background-repeat: no-repeat;
             animation: drive-traffic linear infinite;
+        }
+
+        /* Different car types */
+        .blue-car {
+            background-image: url('blue_vehicle.png');
+        }
+
+        .red-car {
+            background-image: url('red_vehicle.png');
         }
 
         .lane-1 { bottom: 45%; animation-duration: 4s; }
@@ -113,7 +125,7 @@
         .car-delay-6 { animation-delay: 2.5s; }
 
         @keyframes drive-traffic {
-            0% { left: -80px; }
+            0% { left: -100px; }
             100% { left: 100%; }
         }
 
@@ -128,64 +140,39 @@
             border-bottom: 2px solid #808080;
         }
 
-        /* Auto rickshaw parked on side */
+        /* Auto rickshaw using custom image - DOUBLED HEIGHT */
         #parked-auto {
             position: absolute;
             right: 20%;
             bottom: 52%;
-            font-size: 80px;
+            width: 240px; /* Doubled from 120px */
+            height: 160px; /* Doubled from 80px */
+            background-image: url('auto.png');
+            background-size: contain;
+            background-repeat: no-repeat;
             z-index: 2600;
             transform: scaleX(-1); /* Facing left toward user */
         }
 
-        /* Full body auto driver */
+        /* Auto driver using custom image - DOUBLED HEIGHT & REMOVED HAND */
         #driver-anna-full {
             position: absolute;
             right: 25%;
             bottom: 52%;
+            width: 160px; /* Doubled from 80px */
+            height: 240px; /* Doubled from 120px */
+            background-image: url('driver.png');
+            background-size: contain;
+            background-repeat: no-repeat;
             z-index: 2601;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            animation: driver-bounce 2s ease-in-out infinite;
         }
 
-        /* Driver's head */
-        #driver-head {
-            font-size: 40px;
-            animation: head-turn 3s ease-in-out infinite;
-        }
+        /* Removed the waving hand animation completely */
 
-        /* Driver's body */
-        #driver-body {
-            font-size: 50px;
-            margin-top: -10px;
-        }
-
-        /* Driver's legs */
-        #driver-legs {
-            font-size: 30px;
-            margin-top: -15px;
-        }
-
-        /* Waving hand animation */
-        #driver-hand {
-            position: absolute;
-            top: 15px;
-            right: -20px;
-            font-size: 25px;
-            animation: wave-hand 1.5s ease-in-out infinite;
-            transform-origin: bottom center;
-        }
-
-        @keyframes wave-hand {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(30deg); }
-            75% { transform: rotate(-30deg); }
-        }
-
-        @keyframes head-turn {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(10deg); }
+        @keyframes driver-bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         /* Airport building silhouette */
@@ -341,6 +328,41 @@
         #word-temple h2 { margin-top: 0; text-align: center; } #word-temple ul { list-style: none; padding: 0; } #word-temple li { background-color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         #temple-toggle-button { position: absolute; top: 20px; right: 20px; width: 60px; height: 60px; background-color: #fff; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: none; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; z-index: 1003; transition: transform 0.2s; }
         #temple-toggle-button:hover { transform: scale(1.1); }
+
+        /* Responsive image sizing - Updated for doubled sizes */
+        @media (max-width: 768px) {
+            .traffic-car {
+                width: 60px;
+                height: 30px;
+            }
+            
+            #parked-auto {
+                width: 200px; /* Doubled from 100px */
+                height: 130px; /* Doubled from 65px */
+            }
+            
+            #driver-anna-full {
+                width: 130px; /* Doubled from 65px */
+                height: 200px; /* Doubled from 100px */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .traffic-car {
+                width: 50px;
+                height: 25px;
+            }
+            
+            #parked-auto {
+                width: 160px; /* Doubled from 80px */
+                height: 100px; /* Doubled from 50px */
+            }
+            
+            #driver-anna-full {
+                width: 100px; /* Doubled from 50px */
+                height: 160px; /* Doubled from 80px */
+            }
+        }
     </style>
 </head>
 <body>
@@ -365,24 +387,19 @@
         <!-- Busy road with multiple lanes -->
         <div id="busy-road"></div>
         
-        <!-- Traffic cars in different lanes -->
-        <div class="traffic-car lane-1 car-delay-1">🚗</div>
-        <div class="traffic-car lane-2 car-delay-2">🚙</div>
-        <div class="traffic-car lane-3 car-delay-3">🚐</div>
-        <div class="traffic-car lane-4 car-delay-4">🚕</div>
-        <div class="traffic-car lane-1 car-delay-5">🚘</div>
-        <div class="traffic-car lane-2 car-delay-6">🚖</div>
+        <!-- Traffic cars using custom images -->
+        <div class="traffic-car blue-car lane-1 car-delay-1"></div>
+        <div class="traffic-car red-car lane-2 car-delay-2"></div>
+        <div class="traffic-car blue-car lane-3 car-delay-3"></div>
+        <div class="traffic-car red-car lane-4 car-delay-4"></div>
+        <div class="traffic-car blue-car lane-1 car-delay-5"></div>
+        <div class="traffic-car red-car lane-2 car-delay-6"></div>
         
-        <!-- Parked auto rickshaw -->
-        <div id="parked-auto">🛺</div>
+        <!-- Parked auto rickshaw using custom image - DOUBLED SIZE -->
+        <div id="parked-auto"></div>
         
-        <!-- Full body auto driver Anna -->
-        <div id="driver-anna-full">
-            <div id="driver-head">👨‍🦱</div>
-            <div id="driver-hand">👋</div>
-            <div id="driver-body">👔</div>
-            <div id="driver-legs">👖</div>
-        </div>
+        <!-- Auto driver Anna using custom image - DOUBLED SIZE, NO HAND -->
+        <div id="driver-anna-full"></div>
         
         <!-- Dialogue box -->
         <div id="street-dialogue-box">
