@@ -10,6 +10,102 @@
             overflow: hidden; background-color: #f0f2f5;
         }
 
+        /* --- Transition Effect Styles --- */
+        body:before,
+        body:after {
+            content: '';
+            height: 50vh;
+            width: 100%;
+            position: fixed;
+            left: 0;
+            background: #1c2020;
+            z-index: 5000;
+        }
+
+        body:before {
+            top: 0;
+            transform: translateY(-100%);
+            transition: transform 0.2s ease-out;
+        }
+
+        body:after {
+            bottom: 0;
+            transform: translateY(100%);
+            transition: transform 0.2s ease-out;
+        }
+
+        body.transition-active:before {
+            transform: translateY(0);
+        }
+
+        body.transition-active:after {
+            transform: translateY(0);
+        }
+
+        @keyframes delay {
+            0%, 40%, 100% { 
+                transform: scaleY(0.05);
+                -webkit-transform: scaleY(0.05);
+            }
+            20% { 
+                transform: scaleY(1.0);
+                -webkit-transform: scaleY(1.0);
+            }
+        }
+
+        .loader {
+            margin: 0 auto;
+            width: 60px;
+            height: 50px;
+            text-align: center;
+            font-size: 10px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translateY(-50%) translateX(-50%);
+            z-index: 5001;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .loader > div {
+            height: 100%;
+            width: 8px;
+            display: inline-block;
+            float: left;
+            margin-left: 2px;
+            animation: delay 0.8s infinite ease-in-out;
+        }
+
+        .loader .bar1 { background-color: #754fa0; }
+        .loader .bar2 { background-color: #09b7bf; animation-delay: -0.7s; }
+        .loader .bar3 { background-color: #90d36b; animation-delay: -0.6s; }
+        .loader .bar4 { background-color: #f2d40d; animation-delay: -0.5s; }
+        .loader .bar5 { background-color: #fcb12b; animation-delay: -0.4s; }
+        .loader .bar6 { background-color: #ed1b72; animation-delay: -0.3s; }
+
+        .loader.active {
+            opacity: 1;
+        }
+
+        .transition-text {
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 5002;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .transition-text.active {
+            opacity: 1;
+        }
+
         /* --- Start Screen Styles --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -46,7 +142,7 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
-        /* --- Intro Animation Styles --- */
+        /* --- Original Intro Animation Styles (now hidden) --- */
         #intro-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(to bottom, #87CEEB 0%, #f0f0f0 100%);
@@ -369,6 +465,17 @@
         <button id="start-button">Start Your Journey</button>
     </div>
 
+    <!-- Transition Loader and Text -->
+    <div class="loader">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+        <div class="bar4"></div>
+        <div class="bar5"></div>
+        <div class="bar6"></div>
+    </div>
+    <div class="transition-text">Welcome to Chennai</div>
+
     <div id="intro-container"><p>Traveling to Chennai...</p><div id="intro-fade"></div></div>
     
     <!-- Airport Road Scene with Traffic -->
@@ -454,26 +561,57 @@
             } 
         };
 
+        // Custom transition function
+        function customTransition() {
+            return new Promise((resolve) => {
+                const body = document.body;
+                const loader = document.querySelector('.loader');
+                const transitionText = document.querySelector('.transition-text');
+
+                // Step 1: Close curtains and show loader (0.2s)
+                body.classList.add('transition-active');
+                
+                setTimeout(() => {
+                    loader.classList.add('active');
+                    transitionText.classList.add('active');
+                }, 200);
+
+                // Step 2: Wait for 1.5s with loader active
+                setTimeout(() => {
+                    // Step 3: Open curtains and hide loader (0.2s)
+                    body.classList.remove('transition-active');
+                    loader.classList.remove('active');
+                    transitionText.classList.remove('active');
+                    
+                    setTimeout(() => {
+                        resolve();
+                    }, 200);
+                }, 2500); // Total: 0.2 + 1.5 + 0.8 = 2.5s, adjusted to 3s total
+            });
+        }
+
         window.onload = () => {
             const startButton = document.getElementById('start-button');
             startButton.addEventListener('click', beginGame);
         };
 
-        function beginGame() {
+        async function beginGame() {
             document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('intro-container').style.display = 'flex';
-            setTimeout(startDialogue, 8000);
+            
+            // Run custom transition for 3 seconds
+            await customTransition();
+            
+            // Then continue with the street scene
+            startDialogue();
         }
 
         function startDialogue() {
-            document.getElementById('intro-container').style.display = 'none';
-            
             // Show airport road scene
             document.getElementById('airport-road-scene').style.display = 'block';
             
             setTimeout(() => {
                 showStreetDialogueNode('start');
-            }, 2000); // Allow scene to load with traffic animation
+            }, 1000); // Reduced timeout since we don't need to wait for airplane animation
         }
 
         function showStreetDialogueNode(nodeKey, context = null) {
