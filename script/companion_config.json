@@ -1,0 +1,137 @@
+{
+  "characters": {
+    "companions": {
+      "anna": {
+        "id": "anna",
+        "name": "Anna",
+        "title": "The Guide",
+        "district": "Airport/Central",
+        "personality": {
+          "traits": ["friendly", "welcoming", "practical"],
+          "voice_style": "warm, encouraging, patient",
+          "expertise": ["transportation", "basic Tamil", "tourist help"],
+          "greeting_style": "traditional_welcoming"
+        },
+        "relationship_arc": ["Mentor", "Trusted friend", "Cultural bridge"],
+        "dialogue_patterns": {
+          "stranger": "வணக்கம் (Vanakkam)! Welcome to Chennai! I'm Anna, your auto driver.",
+          "acquaintance": "Ready for another adventure around Chennai?",
+          "friend": "என் நண்பா (En nanba - My friend)! What shall we explore today?",
+          "close_friend": "You're becoming a true Chennai person! So proud of you!",
+          "family": "நீங்க இப்ப எங்க குடும்பத்தோட ஒரு பங்கு (You're now part of our family)!"
+        }
+      },
+      "priya": {
+        "id": "priya",
+        "name": "Priya",
+        "title": "The Shopkeeper",
+        "district": "T. Nagar",
+        "personality": {
+          "traits": ["business-savvy", "fashion-conscious", "energetic"],
+          "voice_style": "quick-talking, enthusiastic, trend-aware",
+          "expertise": ["shopping", "bargaining", "modern Chennai lifestyle"],
+          "greeting_style": "energetic_sales"
+        },
+        "relationship_arc": ["Stranger", "Bargaining partner", "Style advisor"],
+        "dialogue_patterns": {
+          "stranger": "அய்யா/அம்மா (Ayya/Amma)! Best prices in T. Nagar! What you need?",
+          "acquaintance": "You're back! Ready to find some great deals today?",
+          "friend": "My favorite customer! I saved something special for you!",
+          "close_friend": "You have such good taste! Let me teach you the art of bargaining!",
+          "family": "You're like family now! Take this with my blessing - no charge!"
+        }
+      },
+      "ravi": {
+        "id": "ravi",
+        "name": "Ravi",
+        "title": "The Fisherman",
+        "district": "Marina Beach",
+        "personality": {
+          "traits": ["philosophical", "storyteller", "traditional"],
+          "voice_style": "calm, wise, poetic",
+          "expertise": ["Chennai history", "coastal culture", "folk tales"],
+          "greeting_style": "contemplative_wisdom"
+        },
+        "relationship_arc": ["Observer", "Story companion", "Cultural keeper"],
+        "dialogue_patterns": {
+          "stranger": "The sea has many stories... Would you like to hear one?",
+          "acquaintance": "Ah, you return to the sea. It calls to you, doesn't it?",
+          "friend": "Let me tell you about the time when Chennai was just Madras...",
+          "close_friend": "You understand the rhythm of the waves now. That's wisdom.",
+          "family": "The sea accepts you as its own. You carry Chennai in your heart."
+        }
+      },
+      "meera": {
+        "id": "meera",
+        "name": "Meera",
+        "title": "The Temple Guide",
+        "district": "Mylapore",
+        "personality": {
+          "traits": ["spiritual", "knowledgeable", "respectful"],
+          "voice_style": "gentle, reverent, educational",
+          "expertise": ["religious customs", "classical music", "traditions"],
+          "greeting_style": "spiritual_reverence"
+        },
+        "relationship_arc": ["Teacher", "Spiritual guide", "Cultural mentor"],
+        "dialogue_patterns": {
+          "stranger": "நமஸ்கார் (Namaskar). Welcome to this sacred space. May I guide you?",
+          "acquaintance": "I see devotion growing in your heart. That's beautiful.",
+          "friend": "Come, let me show you the deeper meanings behind these rituals.",
+          "close_friend": "Your respect for our traditions touches my heart deeply.",
+          "family": "You have truly understood the soul of Tamil culture. I'm honored."
+        }
+      },
+      "arjun": {
+        "id": "arjun",
+        "name": "Arjun",
+        "title": "The Tech Guy",
+        "district": "Express Avenue/IT Corridor",
+        "personality": {
+          "traits": ["modern", "bilingual", "global perspective"],
+          "voice_style": "code-switching English-Tamil, informal, relatable",
+          "expertise": ["contemporary Chennai", "IT culture", "fusion lifestyle"],
+          "greeting_style": "modern_casual"
+        },
+        "relationship_arc": ["Peer", "Tech buddy", "Cultural bridge"],
+        "dialogue_patterns": {
+          "stranger": "Hey there! New to Chennai's tech scene? I can show you around!",
+          "acquaintance": "Back for more Chennai tech culture? Cool!",
+          "friend": "Dude, you're getting the hang of this Chennai vibe! Super!",
+          "close_friend": "நீ இப்ப full Chennai-க்கார ஆயிட்டே (You've become a complete Chennaite)!",
+          "family": "Bro, you're family now! Chennai runs in your blood!"
+        }
+      }
+    }
+  },
+  "trust_system": {
+    "levels": {
+      "stranger": {"min": 0, "max": 20, "description": "Basic interactions, formal language"},
+      "acquaintance": {"min": 21, "max": 40, "description": "More personal topics, casual Tamil"},
+      "friend": {"min": 41, "max": 60, "description": "Share stories, teach slang, give advice"},
+      "close_friend": {"min": 61, "max": 80, "description": "Personal problems, family stories"},
+      "family": {"min": 81, "max": 100, "description": "Deep cultural insights, emotional support"}
+    },
+    "influencers": {
+      "positive": {
+        "respectful_responses": 5,
+        "cultural_curiosity": 3,
+        "helping_others": 7,
+        "completing_quests": 2,
+        "learning_tamil": 3,
+        "showing_interest": 2
+      },
+      "negative": {
+        "dismissive_behavior": -5,
+        "cultural_insensitivity": -8,
+        "impatience": -3,
+        "rude_responses": -7,
+        "ignoring_advice": -2
+      },
+      "neutral": {
+        "task_focused": 0,
+        "factual_questions": 1,
+        "basic_interaction": 0
+      }
+    }
+  }
+}
