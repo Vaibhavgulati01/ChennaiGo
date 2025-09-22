@@ -898,6 +898,7 @@ body.transition-active:after {
         left: 10%;
         width: 70%;
         transform: translateX(0) rotate(-2deg);
+        background: rgba(0, 0, 0, 0.8); /* Change to 0.4 for transparency */
     }
     
     #street-dialogue-box.show {
@@ -981,6 +982,7 @@ body.transition-active:after {
     display: flex;
     align-items: flex-end;
     gap: 30px;
+     background: rgba(0, 0, 0, 0.3); 
 }
 
 .character-info {

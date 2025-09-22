@@ -413,11 +413,15 @@ function showStreetView(location) {
     }, 800); 
 }
 
-// AUTO DRIVER ANNA'S CONVERSATION SYSTEM
+// AUTO DRIVER ANNA'S CONVERSATION SYSTEM (WITH MANUAL NEXT SYSTEM)
 const annaConversations = {
     introduction: {
         character: "Auto Driver Anna",
-        text: "Vanakkam! Welcome to Chennai! I'm Anna, your friendly auto driver. I've been driving these streets for 15 years and know every corner of our beautiful city!",
+        manualText: [
+            "Vanakkam!",
+            "Welcome to Chennai! I'm Anna, your friendly auto driver.",
+            "I've been driving these streets for 15 years and know every corner of our beautiful city!"
+        ],
         options: [
             { text: "Nice to meet you! What makes Chennai special?", nextNode: "chennai_special", trust: 5 },
             { text: "I'm excited to explore! Where should I start?", nextNode: "where_to_start", trust: 8 },
@@ -597,11 +601,15 @@ const annaConversations = {
     }
 };
 
-// RAVI'S CONVERSATION SYSTEM
+// RAVI'S CONVERSATION SYSTEM (UPDATED WITH MANUAL NEXT SYSTEM)
 const raviConversations = {
     introduction: {
         character: "Ravi",
-        text: "Vanakkam! I'm Ravi, been fishing these waters for 20 years. The sea here tells many stories... What brings you to Marina Beach today?",
+        manualText: [
+            "Vanakkam!",
+            "I'm Ravi, been fishing these waters for 20 years.",
+            "The sea here tells many stories... What brings you to Marina Beach today?"
+        ],
         options: [
             { text: "I want to learn about this place", nextNode: "about_place", trust: 5 },
             { text: "Tell me about fishing culture", nextNode: "fishing_culture", trust: 8 },
@@ -612,7 +620,11 @@ const raviConversations = {
     
     about_place: {
         character: "Ravi",
-        text: "Ah, Marina Beach! It's the world's second longest urban beach - 13 kilometers of golden sand. I've watched sunrises here for decades. The waves carry stories from the Bay of Bengal...",
+        manualText: [
+            "Ah, Marina Beach!",
+            "It's the world's second longest urban beach - 13 kilometers of golden sand.",
+            "I've watched sunrises here for decades. The waves carry stories from the Bay of Bengal..."
+        ],
         options: [
             { text: "That sounds beautiful! Show me around?", nextNode: "show_around", trust: 8 },
             { text: "What makes it special?", nextNode: "special_place", trust: 5 },
@@ -622,7 +634,11 @@ const raviConversations = {
     
     fishing_culture: {
         character: "Ravi",
-        text: "Our fishing community has lived here for generations! We go out before dawn in our colorful boats. In Tamil, we call fishing 'மீன் பிடிப்பு' (meen pidippu). The sea provides, and we respect her moods.",
+        manualText: [
+            "Our fishing community has lived here for generations!",
+            "We go out before dawn in our colorful boats.",
+            "In Tamil, we call fishing 'மீன் பிடிப்பு' (meen pidippu). The sea provides, and we respect her moods."
+        ],
         options: [
             { text: "Can you show me the fishing area?", nextNode: "fishing_area", trust: 10 },
             { text: "What do you catch here?", nextNode: "fish_types", trust: 6 },
@@ -642,7 +658,11 @@ const raviConversations = {
     
     tamil_interest: {
         character: "Ravi",
-        text: "Tamil is beautiful language! Like the sea - sometimes gentle, sometimes powerful. I can teach you words we use here daily. First word - 'கடல்' (kadal) means 'sea'. Can you say it?",
+        manualText: [
+            "Tamil is beautiful language! Like the sea - sometimes gentle, sometimes powerful.",
+            "I can teach you words we use here daily.",
+            "First word - 'கடல்' (kadal) means 'sea'. Can you say it?"
+        ],
         options: [
             { text: "Kadal! Teach me more?", nextNode: "tamil_lesson", trust: 12 },
             { text: "What other words should I know?", nextNode: "useful_words", trust: 8 },
@@ -652,7 +672,11 @@ const raviConversations = {
     
     show_around: {
         character: "Ravi",
-        text: "Perfect! Come, let me show you my favorite spots. We'll start with the lighthouse - can you see it from here? Then the fishing harbor where my boat is moored. Ready to explore?",
+        manualText: [
+            "Perfect! Come, let me show you my favorite spots.",
+            "We'll start with the lighthouse - can you see it from here?",
+            "Then the fishing harbor where my boat is moored. Ready to explore?"
+        ],
         options: [
             { text: "Yes! Let's go!", nextNode: "start_exploration", trust: 10 },
             { text: "What will we see first?", nextNode: "tour_preview", trust: 5 },
@@ -662,7 +686,11 @@ const raviConversations = {
     
     special_place: {
         character: "Ravi",
-        text: "Marina Beach is where Chennai breathes. Morning brings joggers and yoga people, evening brings families and lovers. The sand has heard a million prayers and dreams. It connects us all - rich, poor, young, old.",
+        manualText: [
+            "Marina Beach is where Chennai breathes.",
+            "Morning brings joggers and yoga people, evening brings families and lovers.",
+            "The sand has heard a million prayers and dreams. It connects us all - rich, poor, young, old."
+        ],
         options: [
             { text: "I want to feel that connection too", nextNode: "start_exploration", trust: 15 },
             { text: "Show me these different times", nextNode: "time_tour", trust: 8 },
@@ -672,7 +700,11 @@ const raviConversations = {
     
     fishing_area: {
         character: "Ravi",
-        text: "Yes! The fishing harbor is just north from here. Early morning is magical - boats returning with silver catch, seagulls dancing, families welcoming their fishermen home. Want to see it?",
+        manualText: [
+            "Yes! The fishing harbor is just north from here.",
+            "Early morning is magical - boats returning with silver catch, seagulls dancing.",
+            "Families welcoming their fishermen home. Want to see it?"
+        ],
         options: [
             { text: "Absolutely! Let's go there!", nextNode: "start_exploration", trust: 12 },
             { text: "That sounds amazing!", nextNode: "start_exploration", trust: 10 },
@@ -682,7 +714,11 @@ const raviConversations = {
     
     tamil_lesson: {
         character: "Ravi",
-        text: "Wonderful! Here are fisherman's words: 'படகு' (padagu) - boat, 'மீன்' (meen) - fish, 'நீர்' (neer) - water, 'காலை' (kaalai) - morning. Now, shall we walk and I'll show you where we use these words?",
+        manualText: [
+            "Wonderful! Here are fisherman's words:",
+            "'படகு' (padagu) - boat, 'மீன்' (meen) - fish, 'நீர்' (neer) - water, 'காலை' (kaalai) - morning.",
+            "Now, shall we walk and I'll show you where we use these words?"
+        ],
         options: [
             { text: "Yes! Teach me while we explore!", nextNode: "start_exploration", trust: 15 },
             { text: "Let's practice these words around here", nextNode: "start_exploration", trust: 12 },
@@ -700,7 +736,11 @@ const raviConversations = {
     
     sunrise_spot: {
         character: "Ravi",
-        text: "Ah, the sunrise spot! Every morning at 5:30 AM, the sun rises from the Bay of Bengal like a golden coin from the water. Photographers, yogis, and old fishermen like me gather there. It's magical!",
+        manualText: [
+            "Ah, the sunrise spot!",
+            "Every morning at 5:30 AM, the sun rises from the Bay of Bengal like a golden coin from the water.",
+            "Photographers, yogis, and old fishermen like me gather there. It's magical!"
+        ],
         options: [
             { text: "Take me there!", nextNode: "start_exploration", trust: 10 },
             { text: "I'd love to see that magic", nextNode: "start_exploration", trust: 8 }
@@ -709,7 +749,11 @@ const raviConversations = {
     
     tour_preview: {
         character: "Ravi",
-        text: "First, the lighthouse - our guardian for ships. Then fishing boats with their bright colors. Maybe the memorial statues, and definitely the spot where waves are perfect for children to play. Ready?",
+        manualText: [
+            "First, the lighthouse - our guardian for ships.",
+            "Then fishing boats with their bright colors.",
+            "Maybe the memorial statues, and definitely the spot where waves are perfect for children to play. Ready?"
+        ],
         options: [
             { text: "Perfect! Let's start the tour!", nextNode: "start_exploration", trust: 8 }
         ]
@@ -717,7 +761,11 @@ const raviConversations = {
     
     fish_types: {
         character: "Ravi",
-        text: "We catch many types! Pomfret, kingfish, prawns, crabs. The best catch comes at dawn when fish are closest to shore. Each season brings different fish - monsoon brings sardines, winter brings bigger fish.",
+        manualText: [
+            "We catch many types! Pomfret, kingfish, prawns, crabs.",
+            "The best catch comes at dawn when fish are closest to shore.",
+            "Each season brings different fish - monsoon brings sardines, winter brings bigger fish."
+        ],
         options: [
             { text: "Show me where you catch them!", nextNode: "start_exploration", trust: 10 },
             { text: "I'd love to see your fishing spot", nextNode: "start_exploration", trust: 8 }
@@ -726,7 +774,11 @@ const raviConversations = {
     
     weather_wisdom: {
         character: "Ravi",
-        text: "The sea tells us everything! When waves crash differently, storm is coming. When seabirds fly low, wind will change. My father taught me, his father taught him. This knowledge keeps fishermen safe.",
+        manualText: [
+            "The sea tells us everything!",
+            "When waves crash differently, storm is coming. When seabirds fly low, wind will change.",
+            "My father taught me, his father taught him. This knowledge keeps fishermen safe."
+        ],
         options: [
             { text: "That's amazing! Show me the sea", nextNode: "start_exploration", trust: 12 },
             { text: "I want to learn to read the waves", nextNode: "start_exploration", trust: 10 }
@@ -767,7 +819,11 @@ const raviConversations = {
     
     time_tour: {
         character: "Ravi",
-        text: "Imagine morning joggers breathing sea air, sunset couples sharing dreams, children building sand castles. Each hour brings different energy. Marina never sleeps, she just changes her rhythm.",
+        manualText: [
+            "Imagine morning joggers breathing sea air, sunset couples sharing dreams.",
+            "Children building sand castles. Each hour brings different energy.",
+            "Marina never sleeps, she just changes her rhythm."
+        ],
         options: [
             { text: "Let's feel that rhythm!", nextNode: "start_exploration", trust: 12 }
         ]
@@ -868,6 +924,7 @@ function startAnnaConversation() {
     showAnnaConversationScene('introduction');
 }
 
+// UPDATED: Anna conversation with manual Next button system
 function showAnnaConversationScene(nodeKey = 'introduction') {
     console.log('Starting Anna conversation:', nodeKey);
     const node = annaConversations[nodeKey];
@@ -889,7 +946,7 @@ function showAnnaConversationScene(nodeKey = 'introduction') {
                     <div class="character-avatar">🚗</div>
                 </div>
                 <div class="dialogue-content">
-                    <p id="anna-dialogue-text">Loading...</p>
+                    <p id="anna-dialogue-text" style="min-height: 80px; line-height: 1.6;">Loading...</p>
                     <div id="anna-dialogue-options" class="dialogue-options-grid"></div>
                 </div>
             </div>
@@ -900,43 +957,182 @@ function showAnnaConversationScene(nodeKey = 'introduction') {
     annaScene.style.display = 'block';
     
     const dialogueText = document.getElementById('anna-dialogue-text');
-    if (dialogueText) {
-        dialogueText.innerHTML = node.text;
-    }
-    
     const optionsContainer = document.getElementById('anna-dialogue-options');
-    if (optionsContainer) {
-        optionsContainer.innerHTML = '';
+    
+    // Check if this node has manual text progression
+    if (node.manualText) {
+        showManualProgressiveText(dialogueText, optionsContainer, node.manualText, node.options);
+    } else {
+        // Regular single text display
+        if (dialogueText) {
+            dialogueText.innerHTML = node.text;
+        }
         
-        node.options.forEach(option => {
-            const button = document.createElement('button');
-            button.className = 'dialogue-option-btn';
-            button.textContent = option.text;
-            
-            button.onclick = () => {
-                console.log('Anna button clicked:', option.text, 'Next:', option.nextNode, 'Action:', option.action);
-                
-                if (option.trust) {
-                    gameState.updateCharacterRelationship('anna', option.trust);
-                    gameState.addXP(option.trust, 'Building Friendship with Anna');
-                }
-                
-                if (option.action === 'start_map_view') {
-                    console.log('Starting map view...');
-                    startMapView();
-                } else if (option.nextNode) {
-                    showAnnaConversationScene(option.nextNode);
-                }
-            };
-            
-            optionsContainer.appendChild(button);
-        });
+        if (optionsContainer) {
+            setupDialogueOptions(optionsContainer, node.options);
+        }
     }
     
+    // Add transition effect
     annaScene.style.opacity = '0';
     setTimeout(() => {
         annaScene.style.opacity = '1';
     }, 100);
+}
+
+// UPDATED: Ravi conversation with manual Next button system
+function showRaviConversation(nodeKey = 'introduction') {
+    console.log('Starting Ravi conversation:', nodeKey);
+    const node = raviConversations[nodeKey];
+    if (!node) {
+        console.error('Conversation node not found:', nodeKey);
+        return;
+    }
+    
+    const mapElement = document.getElementById('map');
+    const raviScene = document.getElementById('ravi-scene');
+    
+    if (mapElement) mapElement.style.display = 'none';
+    if (raviScene) raviScene.style.display = 'block';
+    
+    const dialogueText = document.getElementById('ravi-dialogue-text');
+    const optionsContainer = document.getElementById('ravi-dialogue-options');
+    
+    // Check if this node has manual text progression
+    if (node.manualText) {
+        showManualProgressiveText(dialogueText, optionsContainer, node.manualText, node.options);
+    } else {
+        // Regular single text display
+        if (dialogueText) {
+            dialogueText.innerHTML = node.text;
+        }
+        
+        if (optionsContainer) {
+            setupRaviDialogueOptions(optionsContainer, node.options);
+        }
+    }
+    
+    if (raviScene) {
+        raviScene.style.opacity = '0';
+        setTimeout(() => {
+            raviScene.style.opacity = '1';
+        }, 100);
+    }
+}
+
+// Manual progressive text display with Next button
+function showManualProgressiveText(textElement, optionsContainer, textArray, finalOptions) {
+    let currentTextIndex = 0;
+    
+    function showCurrentText() {
+        // Clear previous content
+        textElement.innerHTML = '';
+        optionsContainer.innerHTML = '';
+        
+        // Show current text
+        textElement.innerHTML = textArray[currentTextIndex];
+        
+        // Show Next button or final options
+        if (currentTextIndex < textArray.length - 1) {
+            // Still have more text to show - show Next button
+            const nextButton = document.createElement('button');
+            nextButton.className = 'dialogue-option-btn next-btn';
+            nextButton.textContent = 'Next';
+            nextButton.style.cssText = `
+                background: #4CAF50;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 25px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            `;
+            
+            nextButton.onmouseover = () => {
+                nextButton.style.background = '#45a049';
+            };
+            
+            nextButton.onmouseout = () => {
+                nextButton.style.background = '#4CAF50';
+            };
+            
+            nextButton.onclick = () => {
+                currentTextIndex++;
+                showCurrentText();
+            };
+            
+            optionsContainer.appendChild(nextButton);
+        } else {
+            // Last text - show actual dialogue options
+            if (textElement.id === 'anna-dialogue-text') {
+                setupDialogueOptions(optionsContainer, finalOptions);
+            } else {
+                setupRaviDialogueOptions(optionsContainer, finalOptions);
+            }
+        }
+    }
+    
+    // Start with first text
+    showCurrentText();
+}
+
+// Helper function for Anna's dialogue options
+function setupDialogueOptions(optionsContainer, options) {
+    optionsContainer.innerHTML = '';
+    
+    options.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'dialogue-option-btn';
+        button.textContent = option.text;
+        
+        button.onclick = () => {
+            console.log('Anna button clicked:', option.text, 'Next:', option.nextNode, 'Action:', option.action);
+            
+            if (option.trust) {
+                gameState.updateCharacterRelationship('anna', option.trust);
+                gameState.addXP(option.trust, 'Building Friendship with Anna');
+            }
+            
+            if (option.action === 'start_map_view') {
+                console.log('Starting map view...');
+                startMapView();
+            } else if (option.nextNode) {
+                showAnnaConversationScene(option.nextNode);
+            }
+        };
+        
+        optionsContainer.appendChild(button);
+    });
+}
+
+// Helper function for Ravi's dialogue options
+function setupRaviDialogueOptions(optionsContainer, options) {
+    optionsContainer.innerHTML = '';
+    
+    options.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'dialogue-option-btn';
+        button.textContent = option.text;
+        
+        button.onclick = () => {
+            console.log('Ravi button clicked:', option.text, 'Next:', option.nextNode, 'Action:', option.action);
+            
+            if (option.trust) {
+                gameState.updateCharacterRelationship('ravi', option.trust);
+                gameState.addXP(option.trust, 'Building Friendship');
+            }
+            
+            if (option.action === 'start_street_view') {
+                console.log('Starting street view exploration...');
+                startMarinaBeachQuestDirectly();
+            } else if (option.nextNode) {
+                showRaviConversation(option.nextNode);
+            }
+        };
+        
+        optionsContainer.appendChild(button);
+    });
 }
 
 function startMapView() {
@@ -1001,62 +1197,6 @@ function injectMainGameUI() {
             </div>
         </div>
         <div id="quest-box"><h2 id="quest-title"></h2><p id="quest-challenge"></p><div class="options-container" id="quest-options-main"></div></div>`;
-}
-
-function showRaviConversation(nodeKey = 'introduction') {
-    console.log('Starting Ravi conversation:', nodeKey);
-    const node = raviConversations[nodeKey];
-    if (!node) {
-        console.error('Conversation node not found:', nodeKey);
-        return;
-    }
-    
-    const mapElement = document.getElementById('map');
-    const raviScene = document.getElementById('ravi-scene');
-    
-    if (mapElement) mapElement.style.display = 'none';
-    if (raviScene) raviScene.style.display = 'block';
-    
-    const dialogueText = document.getElementById('ravi-dialogue-text');
-    if (dialogueText) {
-        dialogueText.innerHTML = node.text;
-    }
-    
-    const optionsContainer = document.getElementById('ravi-dialogue-options');
-    if (optionsContainer) {
-        optionsContainer.innerHTML = '';
-        
-        node.options.forEach(option => {
-            const button = document.createElement('button');
-            button.className = 'dialogue-option-btn';
-            button.textContent = option.text;
-            
-            button.onclick = () => {
-                console.log('Button clicked:', option.text, 'Next:', option.nextNode, 'Action:', option.action);
-                
-                if (option.trust) {
-                    gameState.updateCharacterRelationship('ravi', option.trust);
-                    gameState.addXP(option.trust, 'Building Friendship');
-                }
-                
-                if (option.action === 'start_street_view') {
-                    console.log('Starting street view exploration...');
-                    startMarinaBeachQuestDirectly();
-                } else if (option.nextNode) {
-                    showRaviConversation(option.nextNode);
-                }
-            };
-            
-            optionsContainer.appendChild(button);
-        });
-    }
-    
-    if (raviScene) {
-        raviScene.style.opacity = '0';
-        setTimeout(() => {
-            raviScene.style.opacity = '1';
-        }, 100);
-    }
 }
 
 function startMarinaBeachQuestDirectly() {
