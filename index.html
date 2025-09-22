@@ -156,8 +156,91 @@
             const wordTemple = document.getElementById('word-temple');
             const templeToggleButton = document.getElementById('temple-toggle-button');
             let playerProgress = { completedQuests: [], learnedWords: [] };
-            const quests = [ { id: 1, name: "Marina Beach", location: { lat: 13.0594, lng: 80.2824 }, challenge: "Tamil word for 'Sea'?", options: ["படகு (Padagu)", "கடல் (Kadal)", "מரம் (Maram)"], correctAnswer: "கடල් (Kadal)" }, { id: 2, name: "Kapaleeshwarar Temple", location: { lat: 13.0342, lng: 80.2691 }, challenge: "The temple's ornate entrance tower is called?", options: ["கோபுரம் (Gopuram)", "கோயில் (Koyil)", "வணக்கம் (Vanakkam)"], correctAnswer: "கோபுரம் (Gopuram)" }, { id: 3, name: "T. Nagar", location: { lat: 13.0398, lng: 80.2307 }, challenge: "How do you ask for the price?", options: ["விலை என்ன? (Vilai enna?)", "நன்றி (Nandri)", "பணம் (Panam)"], correctAnswer: "விலை என்ன? (Vilai enna?)" } ];
-            
+
+        const quests = [
+        {
+            id: 1,
+            name: "Marina Beach",
+            location: { lat: 13.0594, lng: 80.2824 },
+            challenge: "Which Chennai landmark is this?",
+            options: ["Marina Beach", "Kapaleeshwarar Temple", "T. Nagar"],
+            correctAnswer: "Marina Beach"
+        },
+        {
+            id: 2,
+            name: "Kapaleeshwarar Temple",
+            location: { lat: 13.0342, lng: 80.2691 },
+            challenge: "Which famous temple is this?",
+            options: ["Kapaleeshwarar Temple", "Santhome Basilica", "Anna University"],
+            correctAnswer: "Kapaleeshwarar Temple"
+        },
+        {
+            id: 3,
+            name: "T. Nagar",
+            location: { lat: 13.0398, lng: 80.2307 },
+            challenge: "Which shopping area is this?",
+            options: ["T. Nagar", "Express Avenue", "Phoenix Marketcity"],
+            correctAnswer: "T. Nagar"
+        },
+        {
+            id: 4,
+            name: "Santhome Basilica",
+            location: { lat: 13.0412, lng: 80.2773 },
+            challenge: "Identify this famous church in Chennai.",
+            options: ["Santhome Basilica", "St. Thomas Mount", "Valluvar Kottam"],
+            correctAnswer: "Santhome Basilica"
+        },
+        {
+            id: 5,
+            name: "Valluvar Kottam",
+            location: { lat: 13.0585, lng: 80.2530 },
+            challenge: "Which monument commemorates the Tamil poet Thiruvalluvar?",
+            options: ["Valluvar Kottam", "Marina Lighthouse", "Anna University"],
+            correctAnswer: "Valluvar Kottam"
+        },
+        {
+            id: 6,
+            name: "St. Thomas Mount",
+            location: { lat: 13.0020, lng: 80.1742 },
+            challenge: "Which hill shrine is this?",
+            options: ["St. Thomas Mount", "Mount Road", "Guindy National Park"],
+            correctAnswer: "St. Thomas Mount"
+        },
+        {
+            id: 7,
+            name: "Express Avenue",
+            location: { lat: 13.0631, lng: 80.2703 },
+            challenge: "Which shopping mall is this?",
+            options: ["Express Avenue", "T. Nagar", "Phoenix Marketcity"],
+            correctAnswer: "Express Avenue"
+        },
+        {
+            id: 8,
+            name: "Guindy National Park",
+            location: { lat: 13.0108, lng: 80.2201 },
+            challenge: "Which natural reserve is this in Chennai?",
+            options: ["Guindy National Park", "Anna Square", "Besant Nagar Beach"],
+            correctAnswer: "Guindy National Park"
+        },
+        {
+            id: 9,
+            name: "Anna University",
+            location: { lat: 13.0104, lng: 80.2314 },
+            challenge: "Which university campus is shown here?",
+            options: ["Anna University", "IIT Madras", "University of Madras"],
+            correctAnswer: "Anna University"
+        },
+        {
+            id: 10,
+            name: "Besant Nagar Beach",
+            location: { lat: 13.0167, lng: 80.2700 },
+            challenge: "Which Chennai beach is this?",
+            options: ["Besant Nagar Beach", "Marina Beach", "Elliot’s Beach"],
+            correctAnswer: "Besant Nagar Beach"
+        }
+        ];
+                    
+
             initMap(startDestination);
             templeToggleButton.addEventListener('click', () => { wordTemple.classList.toggle('is-visible'); });
             window.addEventListener('click', (event) => { if (wordTemple.classList.contains('is-visible') && !wordTemple.contains(event.target) && !templeToggleButton.contains(event.target)) { wordTemple.classList.remove('is-visible'); } });
@@ -175,27 +258,37 @@
                     if (!isCompleted) marker.addListener('click', () => { marker.setAnimation(null); startQuest(q, marker); }); 
                 }); 
             }
-            function startQuest(quest, marker) { 
-                chittuText.innerText = `Aha, ${quest.name}! A great choice.`; 
-                document.getElementById('quest-title').innerText = quest.name; 
-                document.getElementById('quest-challenge').innerText = quest.challenge; 
-                const optionsContainer = document.getElementById('quest-options-main'); 
-                optionsContainer.innerHTML = ''; 
-                quest.options.forEach(opt => { 
-                    const btn = document.createElement('button'); 
-                    btn.innerText = opt; 
-                    btn.onclick = (event) => checkAnswer(event.target, opt, quest, marker); 
-                    optionsContainer.appendChild(btn); 
-                }); 
-                questBox.style.top = '20px'; 
+
+                        
+            function startQuest(quest, marker) {    
+                chittuText.innerText = `Aha! Let's see where we are...`;
+                showStreetView(quest.location);  // show Street View first
+
+                setTimeout(() => {
+                    document.getElementById('quest-title').innerText = "Guess this place!";
+                    document.getElementById('quest-challenge').innerText = quest.challenge;
+                    const optionsContainer = document.getElementById('quest-options-main');
+                    optionsContainer.innerHTML = '';
+                    quest.options.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.innerText = opt;
+                        btn.onclick = (event) => checkAnswer(event.target, opt, quest, marker);
+                        optionsContainer.appendChild(btn);
+                    });
+                    questBox.style.top = '20px';
+                }, 2000); // allow 2 seconds to view Street View
             }
             function checkAnswer(buttonElement, selected, quest, marker) { 
                 const allButtons = buttonElement.parentElement.children; 
-                for(let btn of allButtons) { btn.disabled = true; } 
+                for(let btn of allButtons) btn.disabled = true; 
+
+                const optionsContainer = document.getElementById('quest-options-main');
+
                 if (selected === quest.correctAnswer) { 
                     buttonElement.classList.add('correct'); 
                     setTimeout(() => { 
-                        chittuText.innerText = `Correct! I've added '${quest.correctAnswer}' to your Word Temple. Let's look around!`; 
+                        chittuText.innerText = `Correct! I've added '${quest.correctAnswer}' to your Word Temple.`;
+
                         playerProgress.completedQuests.push(quest.id); 
                         playerProgress.learnedWords.push(quest.correctAnswer); 
                         saveProgress(); 
@@ -203,19 +296,39 @@
                         marker.setIcon({ url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png", scaledSize: new google.maps.Size(40, 40) }); 
                         marker.setAnimation(null); 
                         google.maps.event.clearInstanceListeners(marker); 
-                        showStreetView(quest.location); 
-                        questBox.style.top = '-350px'; 
+
+                        // Show "Continue Exploring" button
+                        optionsContainer.innerHTML = '';
+                        const continueBtn = document.createElement('button');
+                        continueBtn.innerText = "Continue Exploring";
+                        continueBtn.onclick = () => { 
+                            questBox.style.top = '-350px'; 
+
+                            // **Switch back to normal 2D map**
+                            const mapContainer = document.getElementById('map-container');
+                            mapContainer.classList.remove('map-zoom-out');  // restore zoom-out class if applied
+
+                            // Remove Street View
+                            if (map.getStreetView()) {
+                                map.getStreetView().setVisible(false);
+                            }
+
+                            chittuText.innerText = "Where to next? Click a quest marker on the map!";
+                        };
+                        optionsContainer.appendChild(continueBtn);
+
                     }, 1000); 
                 } else { 
                     buttonElement.classList.add('incorrect'); 
                     setTimeout(() => { 
-                        chittuText.innerText = "Not quite! Try another quest."; 
+                        chittuText.innerText = "Not quite! Try again."; 
                         marker.setAnimation(google.maps.Animation.BOUNCE); 
-                        questBox.style.top = '-350px'; 
                         for(let btn of allButtons) { btn.disabled = false; btn.classList.remove('incorrect'); } 
                     }, 1200); 
                 } 
             }
+
+
             function saveProgress() { localStorage.setItem('chennaiGoProgress', JSON.stringify(playerProgress)); }
             function loadProgress() { const d = localStorage.getItem('chennaiGoProgress'); if (d) { playerProgress = JSON.parse(d); updateWordTemple(); } }
             function updateWordTemple() {

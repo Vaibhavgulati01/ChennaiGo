@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ChennaiGo: Start</title>
+  <style>
+    body, html { margin:0; height:100%; display:flex; justify-content:center; align-items:center; background:url('landing_page.jpg') no-repeat center center; background-size:cover; }
+    #start-button {
+      padding: 20px 40px; font-size: 1.5em;
+      background:white; border:none; border-radius:50px; cursor:pointer;
+      box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <button id="start-button">Start Your Journey</button>
+
+  <script>
+    document.getElementById("start-button").onclick = () => {
+      window.location.href = "dialogue.html";
+    };
+  </script>
+</body>
+</html>
