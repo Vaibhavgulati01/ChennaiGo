@@ -1,10 +1,23 @@
+// Enhanced main.js with AI Companion System Integration
 import { apiKey } from './config.js';
 
-console.log("JS loaded");
+console.log("Enhanced ChennaiGo with AI Companions loaded");
+
+// Load AI Companion System
+if (typeof window !== 'undefined') {
+    const companionScript = document.createElement('script');
+    companionScript.src = './script/ai_companion_system.js';
+    companionScript.onload = () => {
+        console.log('AI Companion System loaded successfully');
+    };
+    document.head.appendChild(companionScript);
+}
+
 let map; 
 let startDestinationForMap;
+let companionSystem; // Global companion system reference
 
-// NEW: Game State Management
+// Enhanced Game State with Companion Integration
 class GameState {
     constructor() {
         this.level = 1;
@@ -20,12 +33,17 @@ class GameState {
         this.streakFreezes = 0;
         this.sessionStartTime = null;
         this.totalPlayTime = 0;
-        this.masteryStars = {}; // questId: stars (1-3)
+        this.masteryStars = {};
         this.cosmetics = {
             pins: [],
             frames: [],
             stickers: []
         };
+        // New companion-related properties
+        this.companionRelationships = new Map();
+        this.unlockedCompanionContent = new Map();
+        this.companionInteractions = 0;
+        this.culturalInsightsLearned = [];
         this.init();
     }
 
@@ -35,18 +53,44 @@ class GameState {
         this.updateStreak();
         this.sessionStartTime = Date.now();
         
-        // FIXED: Initialize daily quests display immediately
         setTimeout(() => {
             this.updateDailyQuestsDisplay();
+            this.initializeCompanionIntegration();
         }, 100);
+    }
+
+    initializeCompanionIntegration() {
+        // Initialize companion system when available
+        if (window.initializeCompanionSystem) {
+            companionSystem = new window.AICompanionSystem();
+            window.companionSystem = companionSystem;
+            console.log('Companion system integrated with game state');
+        } else {
+            // Retry after a short delay
+            setTimeout(() => this.initializeCompanionIntegration(), 500);
+        }
     }
 
     getXPForLevel(level) {
         return Math.floor(100 * Math.pow(1.5, level - 1));
     }
 
+    // Enhanced XP system with companion bonuses
     addXP(amount, reason = '') {
-        this.xp += amount;
+        let bonusXP = 0;
+        
+        // Companion relationship bonus
+        if (companionSystem && companionSystem.currentCompanion) {
+            const trustLevel = companionSystem.getTrustLevel(companionSystem.currentCompanion);
+            bonusXP = Math.floor(trustLevel / 20); // 1-5 bonus XP based on trust level
+            
+            if (bonusXP > 0) {
+                reason += ` (+${bonusXP} companion bonus)`;
+            }
+        }
+
+        const totalXP = amount + bonusXP;
+        this.xp += totalXP;
         this.totalAnswered++;
         
         const currentLevelXP = this.getXPForLevel(this.level);
@@ -58,9 +102,15 @@ class GameState {
         
         this.updateXPDisplay();
         this.saveProgress();
-        
-        // Show XP gain animation
-        this.showXPGain(amount, reason);
+        this.showXPGain(totalXP, reason);
+
+        // Update companion relationship for learning progress
+        if (companionSystem && companionSystem.currentCompanion) {
+            companionSystem.updateTrust(companionSystem.currentCompanion, 'learning_tamil', {
+                xpGained: totalXP,
+                reason: reason
+            });
+        }
     }
 
     levelUp() {
@@ -74,17 +124,13 @@ class GameState {
         const yesterday = new Date(Date.now() - 86400000).toDateString();
         
         if (this.lastPlayDate === today) {
-            // Already played today
             return;
         } else if (this.lastPlayDate === yesterday) {
-            // Streak continues
             this.streak++;
         } else if (this.lastPlayDate && this.streakFreezes > 0) {
-            // Use streak freeze
             this.streakFreezes--;
             this.streak++;
         } else {
-            // Streak broken
             this.streak = 1;
         }
         
@@ -93,6 +139,7 @@ class GameState {
         this.saveProgress();
     }
 
+    // Enhanced daily quests with companion interactions
     generateDailyQuests() {
         const today = new Date().toDateString();
         const savedQuests = localStorage.getItem('dailyQuests');
@@ -100,11 +147,9 @@ class GameState {
         
         if (savedDate === today && savedQuests) {
             this.dailyQuests = JSON.parse(savedQuests);
-            console.log('Loaded existing daily quests:', this.dailyQuests);
             return;
         }
         
-        // ENHANCED: Generate new daily quests with better variety
         const questTemplates = [
             { id: 'identify', text: 'Identify 3 landmarks', target: 3, progress: 0, reward: 50, emoji: '🏛️' },
             { id: 'phrases', text: 'Learn 5 Tamil phrases', target: 5, progress: 0, reward: 40, emoji: '💬' },
@@ -113,15 +158,17 @@ class GameState {
             { id: 'culture', text: 'Collect 2 culture cards', target: 2, progress: 0, reward: 35, emoji: '📚' },
             { id: 'words', text: 'Learn 3 new words', target: 3, progress: 0, reward: 30, emoji: '📝' },
             { id: 'streak', text: 'Maintain daily streak', target: 1, progress: 0, reward: 25, emoji: '🔥' },
-            { id: 'explore', text: 'Visit 2 different areas', target: 2, progress: 0, reward: 40, emoji: '🗺️' }
+            { id: 'explore', text: 'Visit 2 different areas', target: 2, progress: 0, reward: 40, emoji: '🗺️' },
+            // New companion-related quests
+            { id: 'companion_trust', text: 'Build trust with a companion', target: 1, progress: 0, reward: 45, emoji: '🤝' },
+            { id: 'companion_advice', text: 'Ask for advice from companions', target: 2, progress: 0, reward: 35, emoji: '💡' },
+            { id: 'cultural_insight', text: 'Learn cultural insights', target: 3, progress: 0, reward: 50, emoji: '🌟' }
         ];
         
-        // Select 3 random quests
         this.dailyQuests = questTemplates
             .sort(() => Math.random() - 0.5)
-            .slice(0, 3);
+            .slice(0, 4); // Increased to 4 quests
         
-        console.log('Generated new daily quests:', this.dailyQuests);
         localStorage.setItem('dailyQuests', JSON.stringify(this.dailyQuests));
         localStorage.setItem('dailyQuestsDate', today);
     }
@@ -142,7 +189,6 @@ class GameState {
     }
 
     checkMysteryChest() {
-        // Random chance for mystery chest (10% base, increases with streak)
         const chestChance = Math.min(0.1 + (this.streak * 0.02), 0.3);
         if (Math.random() < chestChance) {
             this.showMysteryChest();
@@ -197,7 +243,6 @@ class GameState {
         rewardElement.innerHTML = `<span>${reward.icon}</span><span>${reward.text}</span>`;
         rewards.appendChild(rewardElement);
         
-        // Apply reward
         switch (reward.type) {
             case 'xp':
                 this.addXP(reward.amount, 'Mystery Chest');
@@ -419,7 +464,6 @@ class GameState {
 
     playSound(type) {
         try {
-            // Web Audio API implementation for sound effects
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
             const sounds = {
@@ -488,6 +532,7 @@ class GameState {
         }, 3000);
     }
 
+    // Enhanced save/load with companion data
     saveProgress() {
         const saveData = {
             level: this.level,
@@ -502,7 +547,10 @@ class GameState {
             streakFreezes: this.streakFreezes,
             totalPlayTime: this.totalPlayTime + (Date.now() - this.sessionStartTime),
             masteryStars: this.masteryStars,
-            cosmetics: this.cosmetics
+            cosmetics: this.cosmetics,
+            // Companion-related data
+            companionInteractions: this.companionInteractions,
+            culturalInsightsLearned: this.culturalInsightsLearned
         };
         localStorage.setItem('chennaiGoProgress', JSON.stringify(saveData));
     }
@@ -512,153 +560,86 @@ class GameState {
         if (saved) {
             const data = JSON.parse(saved);
             Object.assign(this, data);
-            this.sessionStartTime = Date.now(); // Reset session timer
+            this.sessionStartTime = Date.now();
         }
     }
 }
 
-// Initialize game state
+// Initialize enhanced game state
 const gameState = new GameState();
 
-// FIXED: Original dialogue script with proper feedback for all options
+// Enhanced script with companion integration
 const script = { 
     start: { 
-        character: "Auto Driver Anna", 
-        text: "Hey! Over here! Welcome to Chennai, sir! Vanakkam! I saw you coming from airport. <i class='tamil-word'>Enge pōnum</i>? Where do you want to go?", 
+        character: "Anna", 
+        text: "வணக்கம் (Vanakkam)! Welcome to Chennai! I'm Anna, your guide through this beautiful city. I'll help you learn Tamil while we explore together!", 
         options: [ 
             { text: "I'd like to see a famous, ancient temple.", destination: "Kapaleeshwarar Temple" }, 
             { text: "Take me to the biggest shopping area!", destination: "T. Nagar" }, 
             { text: "I want to see the famous beach.", destination: "Marina Beach" } 
         ], 
-        action: (choice) => showStreetDialogueNode('learning_moment', choice.destination) 
+        action: (choice) => {
+            // Update companion relationship
+            if (companionSystem) {
+                companionSystem.updateTrust('anna', 'respectful_response', {
+                    isFirstMeeting: true,
+                    showsGenuineInterest: true
+                });
+            }
+            showStreetDialogueNode('learning_moment', choice.destination);
+        }
     }, 
     learning_moment: { 
-        character: "Auto Driver Anna", 
-        text: (dest) => `Ah, ${dest}! Excellent choice, sir! Before we go, let me teach you something. To ask 'What is the price?' in Tamil, we say <i class='tamil-word'>'Vilai enna?'</i>. Can you repeat it back to me?`, 
+        character: "Anna", 
+        text: (dest) => `Ah, ${dest}! Excellent choice! Before we go, let me teach you something. To ask 'What is the price?' in Tamil, we say 'விலை என்ன? (Vilai enna?)'. Can you repeat it back to me?`, 
         options: [ 
             { text: "Where is it?" }, 
-            { text: "What is the price?" },  // CORRECT answer
+            { text: "What is the price?" },
             { text: "Thank you" } 
         ], 
         action: (choice, dest) => { 
-            // FIXED: Added proper feedback and effects for all options
             if (choice.text === "What is the price?") {
                 gameState.addXP(15, 'Tamil Phrase');
                 gameState.updateDailyQuest('phrases');
                 gameState.updateDailyQuest('words');
                 gameState.playSound('correct');
+                
+                // Update companion trust for learning
+                if (companionSystem) {
+                    companionSystem.updateTrust('anna', 'learning_tamil', {
+                        correctAnswer: true,
+                        culturalEngagement: true
+                    });
+                }
+                
                 showStreetDialogueNode('correct_answer', dest);
             } else {
                 gameState.playSound('incorrect');
+                
+                // Slight trust penalty for not listening
+                if (companionSystem) {
+                    companionSystem.updateTrust('anna', 'ignoring_advice');
+                }
+                
                 showStreetDialogueNode('wrong_answer', dest);
             }
         } 
     }, 
     wrong_answer: { 
-        character: "Auto Driver Anna", 
-        text: "Haha, close but not quite! Remember, it's <i class='tamil-word'>'Vilai enna?'</i> which means 'What is the price?'. Don't worry, you'll learn. Hop in, let's go!", 
+        character: "Anna", 
+        text: "Haha, close but not quite! Remember, it's 'விலை என்ன? (Vilai enna?)' which means 'What is the price?'. Don't worry, you'll learn. Hop in, let's go!", 
         options: [{text: "Okay, let's go!"}], 
         action: (c, d) => startGame(d) 
     }, 
     correct_answer: { 
-        character: "Auto Driver Anna", 
-        text: "Perfect! <i class='tamil-word'>Nalla sonninga!</i> You said 'What is the price?' correctly! You're a quick learner! Come, get in my auto. We're going to have fun exploring Chennai!", 
+        character: "Anna", 
+        text: "Perfect! நல்லா சொன்னீங்க! (Nalla sonninga - You said it well!) You're a quick learner! Come, get in my auto. We're going to have fun exploring Chennai together!", 
         options: [{text: "Let's explore Chennai!"}], 
         action: (c, d) => startGame(d) 
     } 
 };
 
-// Custom transition function (unchanged)
-function customTransition() {
-    return new Promise((resolve) => {
-        const body = document.body;
-        const loader = document.querySelector('.loader');
-        const transitionText = document.querySelector('.transition-text');
-
-        body.classList.add('transition-active');
-        
-        setTimeout(() => {
-            loader.classList.add('active');
-            transitionText.classList.add('active');
-        }, 200);
-
-        setTimeout(() => {
-            body.classList.remove('transition-active');
-            loader.classList.remove('active');
-            transitionText.classList.remove('active');
-            
-            setTimeout(() => {
-                resolve();
-            }, 200);
-        }, 2500);
-    });
-}
-
-// Session timer
-let sessionTimer;
-function startSessionTimer() {
-    let seconds = 0;
-    sessionTimer = setInterval(() => {
-        seconds++;
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        const sessionTimeElement = document.getElementById('session-time');
-        if (sessionTimeElement) {
-            sessionTimeElement.textContent = 
-                `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }
-        
-        // Check for healthy session prompts
-        if (seconds % 900 === 0) { // Every 15 minutes
-            gameState.checkSessionTime();
-        }
-    }, 1000);
-}
-
-window.onload = () => {
-    const startButton = document.getElementById('start-button');
-    startButton.addEventListener('click', beginGame);
-    
-    // FIXED: Initialize UI with delay to ensure DOM is ready
-    setTimeout(() => {
-        gameState.updateXPDisplay();
-        gameState.updateStreakDisplay();
-        gameState.updateDailyQuestsDisplay();
-    }, 500);
-    
-    // Daily quest panel toggle
-    const toggleQuestsBtn = document.getElementById('toggle-quests');
-    if (toggleQuestsBtn) {
-        toggleQuestsBtn.addEventListener('click', () => {
-            const questsList = document.getElementById('daily-quests-list');
-            const toggleBtn = document.getElementById('toggle-quests');
-            
-            if (questsList.style.display === 'none') {
-                questsList.style.display = 'block';
-                toggleBtn.textContent = '−';
-            } else {
-                questsList.style.display = 'none';
-                toggleBtn.textContent = '+';
-            }
-        });
-    }
-    
-    startSessionTimer();
-};
-
-async function beginGame() {
-    document.getElementById('start-screen').style.display = 'none';
-    await customTransition();
-    startDialogue();
-}
-
-function startDialogue() {
-    document.getElementById('airport-road-scene').style.display = 'block';
-    setTimeout(() => {
-        showStreetDialogueNode('start');
-    }, 1000);
-}
-
+// Enhanced dialogue system with companion integration
 function showStreetDialogueNode(nodeKey, context = null) {
     const node = script[nodeKey];
     const streetDialogueBox = document.getElementById('street-dialogue-box');
@@ -666,7 +647,16 @@ function showStreetDialogueNode(nodeKey, context = null) {
     const streetDialogueText = document.getElementById('street-dialogue-text');
     const streetDialogueOptions = document.getElementById('street-dialogue-options');
     
-    streetDialogueCharacter.innerHTML = `<span class="driver-name">${node.character}</span>`;
+    // Use companion name if available
+    let characterName = node.character;
+    if (companionSystem && companionSystem.currentCompanion) {
+        const currentCompanion = companionSystem.companions.get(companionSystem.currentCompanion);
+        if (currentCompanion) {
+            characterName = `${currentCompanion.name} ${currentCompanion.avatar}`;
+        }
+    }
+    
+    streetDialogueCharacter.innerHTML = `<span class="driver-name">${characterName}</span>`;
     streetDialogueText.innerHTML = typeof node.text === 'function' ? node.text(context) : node.text;
     streetDialogueOptions.innerHTML = '';
     
@@ -677,13 +667,26 @@ function showStreetDialogueNode(nodeKey, context = null) {
         streetDialogueOptions.appendChild(button);
     });
     
+    // Add companion interaction tracking
+    if (companionSystem && companionSystem.currentCompanion) {
+        companionSystem.userRelationships.get(companionSystem.currentCompanion).interactionCount++;
+        gameState.companionInteractions++;
+    }
+    
     setTimeout(() => {
         streetDialogueBox.classList.add('show');
     }, 1000);
 }
 
+// Enhanced quest system with companion integration
 function startGame(destination) {
     startDestinationForMap = destination;
+    
+    // Select appropriate companion based on destination
+    if (companionSystem) {
+        const companion = companionSystem.selectCompanionByDistrict(destination);
+        console.log(`Selected companion: ${companion.name} for ${destination}`);
+    }
     
     const airportScene = document.getElementById('airport-road-scene');
     airportScene.style.opacity = '0';
@@ -706,6 +709,10 @@ function injectMainGameUI() {
         <div id="map"></div>
         <div id="temple-toggle-button">📖</div>
         <div id="word-temple"><h2>Your Word Temple</h2><ul id="word-list"></ul></div>
+        <div id="companion-info-panel" style="position: fixed; top: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 10px; min-width: 200px; display: none;">
+            <div id="current-companion-info"></div>
+            <div id="companion-actions"></div>
+        </div>
         <div id="chittu-container">
             <div style="display: flex; align-items: flex-end; gap: 10px;">
                 <div id="chittu-avatar">🐦</div>
@@ -715,6 +722,7 @@ function injectMainGameUI() {
         <div id="quest-box"><h2 id="quest-title"></h2><p id="quest-challenge"></p><div class="options-container" id="quest-options-main"></div></div>`;
 }
 
+// Enhanced main game logic with companion integration
 function runMainGameLogic() {
     const startDestination = startDestinationForMap; 
     const chittuText = document.getElementById('chittu-text'); 
@@ -722,7 +730,21 @@ function runMainGameLogic() {
     const wordTemple = document.getElementById('word-temple');
     const templeToggleButton = document.getElementById('temple-toggle-button');
 
-    // Enhanced quests with mastery and culture cards
+    // Initialize companion system integration
+    if (window.AICompanionSystem) {
+        setTimeout(() => {
+            if (!companionSystem) {
+                companionSystem = new window.AICompanionSystem();
+                companionSystem.integrateWithMainGame();
+                window.companionSystem = companionSystem;
+            }
+            
+            // Add companion info panel
+            addCompanionInfoPanel();
+        }, 1000);
+    }
+
+    // Enhanced quests with companion integration
     const quests = [
         {
             id: 1,
@@ -731,6 +753,7 @@ function runMainGameLogic() {
             challenge: "You see the sea for the first time! How do you ask 'What is this?' in Tamil?",
             options: ["இது என்ன? (Ithu enna?)", "எங்கே? (Engay?)", "நன்றி (Nandri)"],
             correctAnswer: "இது என்ன? (Ithu enna?)",
+            companionId: 'ravi',
             cultureCard: {
                 title: "Marina Beach",
                 fact: "At 13km long, Marina Beach is the world's second-longest urban beach!",
@@ -746,6 +769,7 @@ function runMainGameLogic() {
             challenge: "You want to enter the temple. How do you politely ask 'May I enter?' in Tamil?",
             options: ["நான் நுழையலாமா? (Naan nuzhayalaamaa?)", "எங்கே? (Engay?)", "விலை என்ன? (Vilai enna?)"],
             correctAnswer: "நான் நுழையலாமா? (Naan nuzhayalaamaa?)",
+            companionId: 'meera',
             cultureCard: {
                 title: "Kapaleeshwarar Temple",
                 fact: "This 7th-century temple is dedicated to Lord Shiva and showcases classic Dravidian architecture.",
@@ -761,6 +785,7 @@ function runMainGameLogic() {
             challenge: "You see a shirt you like. How do you ask 'How much does this cost?' in Tamil?",
             options: ["விலை என்ன? (Vilai enna?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
             correctAnswer: "விலை என்ன? (Vilai enna?)",
+            companionId: 'priya',
             cultureCard: {
                 title: "T. Nagar Shopping District",
                 fact: "T. Nagar is one of the largest commercial areas in the world by revenue per square foot!",
@@ -771,120 +796,24 @@ function runMainGameLogic() {
         },
         {
             id: 4,
-            name: "Santhome Basilica",
-            location: { lat: 13.03349, lng: 80.2733 }, 
-            challenge: "You admire the church's architecture. Which Tamil word means 'church'?",
-            options: ["சேர்ச்சி (Searchi)", "கோவில் (Kovil)", "முகில் (Mugil)"],
-            correctAnswer: "சேர்ச்சி (Searchi)",
-            cultureCard: {
-                title: "Santhome Basilica",
-                fact: "Built over the tomb of St. Thomas the Apostle, this is one of only three churches built over apostles' tombs.",
-                art: "⛪"
-            },
-            baseXP: 25,
-            speedBonusTime: 18
-        },
-        {
-            id: 5,
-            name: "Valluvar Kottam",
-            location: { lat: 13.0544, lng: 80.2418 },
-            challenge: "You want to ask about the famous poet. How do you say 'Who wrote this?' in Tamil?",
-            options: ["இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
-            correctAnswer: "இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)",
-            cultureCard: {
-                title: "Thiruvalluvar",
-                fact: "Thiruvalluvar wrote the Thirukkural, containing 1330 couplets on virtue, wealth, and love.",
-                art: "📜"
-            },
-            baseXP: 30,
-            speedBonusTime: 25
-        },
-        {
-            id: 6,
-            name: "St. Thomas Mount",
-            location: { lat: 13.007806, lng: 80.192500 },
-            challenge: "You are on top of the hill and want to say 'It's high!' in Tamil. How?",
-            options: ["உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)", "கீழே போ! (Keezhe po!)", "நன்றி! (Nandri!)"],
-            correctAnswer: "உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)",
-            cultureCard: {
-                title: "St. Thomas Mount",
-                fact: "This 300-foot hillock is where St. Thomas is believed to have been martyred in 72 AD.",
-                art: "⛰️"
-            },
-            baseXP: 22,
-            speedBonusTime: 15
-        },
-        {
-            id: 7,
             name: "Express Avenue",
             location: { lat: 13.058974, lng: 80.264135 },
             challenge: "You want to invite a friend to shop. How do you say 'Let's go shopping!' in Tamil?",
             options: ["வாங்க வாங்க! (Vaanga vaanga!)", "நம் செல்லலாம்! (Nam sellalaam!)", "வணிக மையம் (Vaniga Maiyam)"],
             correctAnswer: "நம் செல்லலாம்! (Nam sellalaam!)",
+            companionId: 'arjun',
             cultureCard: {
                 title: "Express Avenue Mall",
-                fact: "One of the largest malls in Chennai, featuring over 300 brands and a 1.2 million sq ft area.",
+                fact: "One of Chennai's largest malls, representing the modern face of the city.",
                 art: "🏬"
             },
             baseXP: 18,
-            speedBonusTime: 12
-        },
-        {
-            id: 8,
-            name: "Guindy National Park",
-            location: { lat: 13.0036, lng: 80.2293 },
-            challenge: "You spot a deer. How do you say 'Look, a deer!' in Tamil?",
-            options: ["பாரு, மான்! (Paaru, maan!)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
-            correctAnswer: "பாரு, மான்! (Paaru, maan!)",
-            cultureCard: {
-                title: "Guindy National Park",
-                fact: "India's 8th smallest national park, located entirely within a city, home to over 350 species of plants!",
-                art: "🦌"
-            },
-            baseXP: 20,
-            speedBonusTime: 14
-        },
-        {
-            id: 9,
-            name: "Anna University",
-            location: { lat: 13.0111, lng: 80.2363 },
-            challenge: "You want to ask a student 'Which department is this?' in Tamil. How?",
-            options: ["இது எந்த துறை? (Idhu entha thurai?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
-            correctAnswer: "இது எந்த துறை? (Idhu entha thurai?)",
-            cultureCard: {
-                title: "Anna University",
-                fact: "Named after C.N. Annadurai, this technical university is one of India's top engineering institutions.",
-                art: "🎓"
-            },
-            baseXP: 25,
-            speedBonusTime: 20
-        },
-        {
-            id: 10,
-            name: "Besant Nagar Beach",
-            location: { lat: 12.9989, lng: 80.2718 },
-            challenge: "You want to buy a coconut from a beach vendor. How do you ask 'How much for one?' in Tamil?",
-            options: ["ஒன்று எவ்வளவு? (Ondru evvalavu?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
-            correctAnswer: "ஒன்று எவ்வளவு? (Ondru evvalavu?)",
-            cultureCard: {
-                title: "Besant Nagar Beach",
-                fact: "Also known as Elliot's Beach, it's named after Edward Elliot, former governor of Madras.",
-                art: "🥥"
-            },
-            baseXP: 20,
             speedBonusTime: 12
         }
     ];
 
     initMap(startDestination);
     templeToggleButton.addEventListener('click', () => { wordTemple.classList.toggle('is-visible'); });
-    window.addEventListener('click', (event) => { 
-        if (wordTemple.classList.contains('is-visible') && 
-            !wordTemple.contains(event.target) && 
-            !templeToggleButton.contains(event.target)) { 
-            wordTemple.classList.remove('is-visible'); 
-        } 
-    });
     
     function initMap(startDest) { 
         loadProgress(); 
@@ -922,19 +851,52 @@ function runMainGameLogic() {
                 animation: (isCompleted || q.name !== startDest) ? null : google.maps.Animation.BOUNCE 
             }); 
             
-            if (q.name === startDest) chittuText.innerText = `Welcome to ${startDest}! Click the bouncing marker to begin.`; 
+            if (q.name === startDest) {
+                let welcomeMessage = `Welcome to ${startDest}! Click the bouncing marker to begin.`;
+                
+                // Add companion-specific welcome
+                if (companionSystem && q.companionId) {
+                    const companion = companionSystem.companions.get(q.companionId);
+                    if (companion) {
+                        companionSystem.currentCompanion = q.companionId;
+                        welcomeMessage = `Welcome to ${startDest}! ${companion.name} ${companion.avatar} is here to guide you. Click the marker to start!`;
+                    }
+                }
+                
+                chittuText.innerText = welcomeMessage;
+            }
+            
             if (!isCompleted || masteryLevel < 3) {
                 marker.addListener('click', () => { 
-                    marker.setAnimation(null); 
+                    marker.setAnimation(null);
+                    
+                    // Set current companion for this quest
+                    if (companionSystem && q.companionId) {
+                        companionSystem.currentCompanion = q.companionId;
+                        updateCompanionInfoPanel(q.companionId);
+                    }
+                    
                     startQuest(q, marker); 
                 }); 
             }
         }); 
     }
-                
+
     function startQuest(quest, marker) {    
         const startTime = Date.now();
-        chittuText.innerText = `Aha! Let's see where we are...`;
+        
+        // Get companion-specific intro
+        let introText = `Aha! Let's see where we are...`;
+        if (companionSystem && quest.companionId) {
+            const companion = companionSystem.companions.get(quest.companionId);
+            const relationship = companionSystem.userRelationships.get(quest.companionId);
+            if (companion && relationship) {
+                const stage = relationship.relationshipStage;
+                introText = companion.dialoguePatterns[stage] || introText;
+            }
+        }
+        
+        chittuText.innerText = introText;
         showStreetView(quest.location);
 
         setTimeout(() => {
@@ -966,8 +928,20 @@ function runMainGameLogic() {
             gameState.playSound('correct');
             gameState.correctAnswers++;
             
+            // Update companion relationship for correct answer
+            if (companionSystem && quest.companionId) {
+                companionSystem.updateTrust(quest.companionId, 'respectful_response', {
+                    correctAnswer: true,
+                    culturalEngagement: true,
+                    questCompleted: true
+                });
+                
+                // Update cultural insights quest
+                gameState.updateDailyQuest('cultural_insight');
+                gameState.updateDailyQuest('companion_trust');
+            }
+            
             setTimeout(() => { 
-                // Calculate XP with bonuses
                 let xpGained = quest.baseXP;
                 let bonusText = 'Correct Answer!';
                 
@@ -977,7 +951,6 @@ function runMainGameLogic() {
                     gameState.updateDailyQuest('speed');
                 }
 
-                // Check for perfect round (first try)
                 const currentMastery = gameState.masteryStars[quest.id] || 0;
                 if (currentMastery === 0) {
                     xpGained += 5;
@@ -985,33 +958,36 @@ function runMainGameLogic() {
                     gameState.updateDailyQuest('perfect');
                 }
 
-                // Update mastery stars
                 gameState.masteryStars[quest.id] = Math.min((gameState.masteryStars[quest.id] || 0) + 1, 3);
 
-                // Add to completed quests if not already there
                 if (!gameState.completedQuests.includes(quest.id)) {
                     gameState.completedQuests.push(quest.id);
                     gameState.updateDailyQuest('identify');
                 }
 
-                // Add learned word
                 if (!gameState.learnedWords.includes(quest.correctAnswer)) {
                     gameState.learnedWords.push(quest.correctAnswer);
                     gameState.updateDailyQuest('words');
                 }
 
-                // Add culture card
                 if (!gameState.cultureCards.find(c => c.title === quest.cultureCard.title)) {
                     gameState.cultureCards.push(quest.cultureCard);
                     gameState.updateDailyQuest('culture');
                 }
 
-                // Check for area exploration
                 gameState.updateDailyQuest('explore');
-
                 gameState.addXP(xpGained, bonusText);
-                chittuText.innerText = `Correct! I've added '${quest.correctAnswer}' to your Word Temple.`;
 
+                // Companion-specific success message
+                let successMessage = `Correct! I've added '${quest.correctAnswer}' to your Word Temple.`;
+                if (companionSystem && quest.companionId) {
+                    const companion = companionSystem.companions.get(quest.companionId);
+                    if (companion) {
+                        successMessage = `${companion.name}: "${companion.dialoguePatterns.friend}" Great job learning Tamil!`;
+                    }
+                }
+                
+                chittuText.innerText = successMessage;
                 updateWordTemple(); 
                 marker.setIcon({ 
                     url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png", 
@@ -1019,7 +995,6 @@ function runMainGameLogic() {
                 }); 
                 marker.setAnimation(null); 
 
-                // Show mastery stars
                 const masteryDisplay = document.createElement('div');
                 masteryDisplay.className = 'mastery-stars';
                 const currentStars = gameState.masteryStars[quest.id] || 0;
@@ -1046,13 +1021,16 @@ function runMainGameLogic() {
                 };
                 optionsContainer.appendChild(continueBtn);
 
-                // Check for mystery chest
                 gameState.checkMysteryChest();
-
             }, 1000); 
         } else { 
             buttonElement.classList.add('incorrect'); 
             gameState.playSound('incorrect');
+            
+            // Minor trust penalty for wrong answer
+            if (companionSystem && quest.companionId) {
+                companionSystem.updateTrust(quest.companionId, 'basic_interaction');
+            }
             
             setTimeout(() => { 
                 chittuText.innerText = "Not quite! Try again."; 
@@ -1065,8 +1043,70 @@ function runMainGameLogic() {
         } 
     }
 
+    function addCompanionInfoPanel() {
+        const panel = document.getElementById('companion-info-panel');
+        if (!panel) return;
+
+        // Add toggle button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.innerHTML = '👥';
+        toggleBtn.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 250px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+        `;
+        toggleBtn.onclick = () => {
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        };
+        document.body.appendChild(toggleBtn);
+    }
+
+    function updateCompanionInfoPanel(companionId) {
+        const panel = document.getElementById('companion-info-panel');
+        const infoDiv = document.getElementById('current-companion-info');
+        const actionsDiv = document.getElementById('companion-actions');
+        
+        if (!panel || !infoDiv || !actionsDiv || !companionSystem) return;
+
+        const companion = companionSystem.companions.get(companionId);
+        const relationship = companionSystem.userRelationships.get(companionId);
+        
+        if (!companion || !relationship) return;
+
+        panel.style.display = 'block';
+        
+        infoDiv.innerHTML = `
+            <h3>${companion.avatar} ${companion.name}</h3>
+            <p><strong>${companion.title}</strong></p>
+            <p><em>${companion.district}</em></p>
+            <div class="relationship-status">
+                <p>Relationship: <strong>${relationship.relationshipStage.replace('_', ' ')}</strong></p>
+                <div class="trust-bar" style="width: 100%; height: 10px; background: #ecf0f1; border-radius: 5px; margin: 5px 0;">
+                    <div style="width: ${relationship.trustLevel}%; height: 100%; background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60); border-radius: 5px;"></div>
+                </div>
+                <p style="font-size: 0.8em;">Trust Level: ${relationship.trustLevel}/100</p>
+            </div>
+        `;
+
+        const actions = companionSystem.getSuggestedActions(companion, relationship);
+        actionsDiv.innerHTML = `
+            <h4>Available Actions:</h4>
+            ${actions.slice(0, 3).map(action => 
+                `<button class="companion-action-btn" style="display: block; width: 100%; margin: 2px 0; padding: 5px; border: none; background: #3498db; color: white; border-radius: 5px; cursor: pointer;">${action}</button>`
+            ).join('')}
+        `;
+    }
+
     function loadProgress() { 
-        // This function is called from the global gameState, but we need local compatibility
         if (gameState.learnedWords.length > 0) {
             templeToggleButton.style.display = 'flex';
         }
@@ -1104,4 +1144,94 @@ function runMainGameLogic() {
             setTimeout(() => mapContainer.classList.remove('map-zoom-out'), 50); 
         }, 800); 
     }
+}
+
+// Enhanced window load with companion integration
+window.onload = () => {
+    const startButton = document.getElementById('start-button');
+    startButton.addEventListener('click', beginGame);
+    
+    setTimeout(() => {
+        gameState.updateXPDisplay();
+        gameState.updateStreakDisplay();
+        gameState.updateDailyQuestsDisplay();
+    }, 500);
+    
+    const toggleQuestsBtn = document.getElementById('toggle-quests');
+    if (toggleQuestsBtn) {
+        toggleQuestsBtn.addEventListener('click', () => {
+            const questsList = document.getElementById('daily-quests-list');
+            const toggleBtn = document.getElementById('toggle-quests');
+            
+            if (questsList.style.display === 'none') {
+                questsList.style.display = 'block';
+                toggleBtn.textContent = '−';
+            } else {
+                questsList.style.display = 'none';
+                toggleBtn.textContent = '+';
+            }
+        });
+    }
+    
+    startSessionTimer();
+    
+    console.log('Enhanced ChennaiGo with AI Companions fully loaded!');
+};
+
+// Rest of the original functions remain the same...
+async function beginGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    await customTransition();
+    startDialogue();
+}
+
+function customTransition() {
+    return new Promise((resolve) => {
+        const body = document.body;
+        const loader = document.querySelector('.loader');
+        const transitionText = document.querySelector('.transition-text');
+
+        body.classList.add('transition-active');
+        
+        setTimeout(() => {
+            loader.classList.add('active');
+            transitionText.classList.add('active');
+        }, 200);
+
+        setTimeout(() => {
+            body.classList.remove('transition-active');
+            loader.classList.remove('active');
+            transitionText.classList.remove('active');
+            
+            setTimeout(() => {
+                resolve();
+            }, 200);
+        }, 2500);
+    });
+}
+
+function startDialogue() {
+    document.getElementById('airport-road-scene').style.display = 'block';
+    setTimeout(() => {
+        showStreetDialogueNode('start');
+    }, 1000);
+}
+
+let sessionTimer;
+function startSessionTimer() {
+    let seconds = 0;
+    sessionTimer = setInterval(() => {
+        seconds++;
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        const sessionTimeElement = document.getElementById('session-time');
+        if (sessionTimeElement) {
+            sessionTimeElement.textContent = 
+                `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        if (seconds % 900 === 0) { 
+            gameState.checkSessionTime();
+        }
+    }, 1000);
 }
