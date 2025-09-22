@@ -56,7 +56,7 @@
             align-items: center; justify-content: center; color: white;
             font-size: 2em; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        #airplane { font-size: 100px; position: absolute; animation: fly-and-land 7s ease-in-out forwards; }
+        #airplane { font-size: 100px; position: absolute; animation: fly-and-land 3s ease-in-out forwards; }
         @keyframes fly-and-land { 0% { left: -150px; top: 30%; transform: rotate(-15deg); } 40% { left: 50%; top: 40%; transform: translateX(-50%) rotate(0deg); } 70% { left: 50%; top: 40%; transform: translateX(-50%) rotate(0deg); } 100% { left: 120%; top: 80%; transform: rotate(15deg); } }
         #intro-fade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; opacity: 0; animation: fade-in 2s 6s forwards; }
         @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
@@ -158,89 +158,90 @@
             let playerProgress = { completedQuests: [], learnedWords: [] };
 
 
-        //nice
+        //nice 
         const quests = [
-        {
-            id: 1,
-            name: "Marina Beach",
-            location: { lat: 13.0500, lng: 80.2824 },
-            challenge: "Which Chennai landmark is this?",
-            options: ["Marina Beach", "Kapaleeshwarar Temple", "T. Nagar"],
-            correctAnswer: "Marina Beach"
-        },
-        {
-            id: 2,
-            name: "Kapaleeshwarar Temple",
-            location: { lat: 13.0337, lng: 80.2698 },
-            challenge: "Which famous temple is this?",
-            options: ["Kapaleeshwarar Temple", "Santhome Basilica", "Anna University"],
-            correctAnswer: "Kapaleeshwarar Temple"
-        },
-        {
-            id: 3,
-            name: "T. Nagar",
-            location: { lat: 13.0418, lng: 80.2341 },
-            challenge: "Which shopping area is this?",
-            options: ["T. Nagar", "Express Avenue", "Phoenix Marketcity"],
-            correctAnswer: "T. Nagar"
-        },
-        {
-            id: 4,
-            name: "Santhome Basilica",
-            location: { lat: 13.03349, lng: 80.2733 }, 
-            challenge: "Identify this famous church in Chennai.",
-            options: ["Santhome Basilica", "St. Thomas Mount", "Valluvar Kottam"],
-            correctAnswer: "Santhome Basilica"
-        },
-        {
-            id: 5,
-            name: "Valluvar Kottam",
-            location: { lat: 13.0544, lng: 80.2418 },
-            challenge: "Which monument commemorates the Tamil poet Thiruvalluvar?",
-            options: ["Valluvar Kottam", "Marina Lighthouse", "Anna University"],
-            correctAnswer: "Valluvar Kottam"
-        },
-        {
-            id: 6,
-            name: "St. Thomas Mount",
-            location: { lat: ﻿13.007806, lng: 80.192500 },
-            challenge: "Which hill shrine is this?",
-            options: ["St. Thomas Mount", "Mount Road", "Guindy National Park"],
-            correctAnswer: "St. Thomas Mount"
-        },
-        {
-            id: 7,
-            name: "Express Avenue",
-            location: { lat: 13.058974, lng: 80.264135 },
-            challenge: "Which shopping mall is this?",
-            options: ["Express Avenue", "T. Nagar", "Phoenix Marketcity"],
-            correctAnswer: "Express Avenue"
-        },
-        {
-            id: 8,
-            name: "Guindy National Park",
-            location: { lat: 13.0036, lng: 80.2293 },
-            challenge: "Which natural reserve is this in Chennai?",
-            options: ["Guindy National Park", "Anna Square", "Besant Nagar Beach"],
-            correctAnswer: "Guindy National Park"
-        },
-        {
-            id: 9,
-            name: "Anna University",
-            location: { lat: 13.0111, lng: 80.2363 },
-            challenge: "Which university campus is shown here?",
-            options: ["Anna University", "IIT Madras", "University of Madras"],
-            correctAnswer: "Anna University"
-        },
-        {
-            id: 10,
-            name: "Besant Nagar Beach",
-            location: { lat: 12.9989, lng: 80.2718 },
-            challenge: "Which Chennai beach is this?",
-            options: ["Besant Nagar Beach", "Marina Beach", "Elliot’s Beach"],
-            correctAnswer: "Besant Nagar Beach"
-        }
-        ];
+    {
+        id: 1,
+        name: "Marina Beach",
+        location: { lat: 13.0500, lng: 80.2824 },
+        challenge: "You see the sea for the first time! How do you ask 'What is this?' in Tamil?",
+        options: ["இது என்ன? (Ithu enna?)", "எங்கே? (Engay?)", "நன்றி (Nandri)"],
+        correctAnswer: "இது என்ன? (Ithu enna?)"
+    },
+    {
+        id: 2,
+        name: "Kapaleeshwarar Temple",
+        location: { lat: 13.0337, lng: 80.2698 },
+        challenge: "You want to enter the temple. How do you politely ask 'May I enter?' in Tamil?",
+        options: ["நான் நுழையலாமா? (Naan nuzhayalaamaa?)", "எங்கே? (Engay?)", "விலை என்ன? (Vilai enna?)"],
+        correctAnswer: "நான் நுழையலாமா? (Naan nuzhayalaamaa?)"
+    },
+    {
+        id: 3,
+        name: "T. Nagar",
+        location: { lat: 13.0418, lng: 80.2341 },
+        challenge: "You see a shirt you like. How do you ask 'How much does this cost?' in Tamil?",
+        options: ["விலை என்ன? (Vilai enna?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
+        correctAnswer: "விலை என்ன? (Vilai enna?)"
+    },
+    {
+        id: 4,
+        name: "Santhome Basilica",
+        location: { lat: 13.03349, lng: 80.2733 }, 
+        challenge: "You admire the church’s architecture. Which Tamil word means 'church'?",
+        options: ["சேர்ச்சி (Searchi)", "கோவில் (Kovil)", "முகில் (Mugil)"],
+        correctAnswer: "சேர்ச்சி (Searchi)"
+    },
+    {
+        id: 5,
+        name: "Valluvar Kottam",
+        location: { lat: 13.0544, lng: 80.2418 },
+        challenge: "You want to ask about the famous poet. How do you say 'Who wrote this?' in Tamil?",
+        options: ["இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
+        correctAnswer: "இதை யார் எழுதியது? (Idhai yaar ezhuthiyadhu?)"
+    },
+    {
+        id: 6,
+        name: "St. Thomas Mount",
+        location: { lat: 13.007806, lng: 80.192500 },
+        challenge: "You are on top of the hill and want to say 'It’s high!' in Tamil. How?",
+        options: ["உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)", "கீழே போ! (Keezhe po!)", "நன்றி! (Nandri!)"],
+        correctAnswer: "உயரமாக இருக்கிறது! (Uyaramaa irukiradhu!)"
+    },
+    {
+        id: 7,
+        name: "Express Avenue",
+        location: { lat: 13.058974, lng: 80.264135 },
+        challenge: "You want to invite a friend to shop. How do you say 'Let’s go shopping!' in Tamil?",
+        options: ["வாங்க வாங்க! (Vaanga vaanga!)", "நம் செல்லலாம்! (Nam sellalaam!)", "வணிக மையம் (Vaniga Maiyam)"],
+        correctAnswer: "நம் செல்லலாம்! (Nam sellalaam!)"
+    },
+    {
+        id: 8,
+        name: "Guindy National Park",
+        location: { lat: 13.0036, lng: 80.2293 },
+        challenge: "You spot a deer. How do you say 'Look, a deer!' in Tamil?",
+        options: ["பாரு, மான்! (Paaru, maan!)", "எங்கே? (Engay?)", "நன்றி! (Nandri!)"],
+        correctAnswer: "பாரு, மான்! (Paaru, maan!)"
+    },
+    {
+        id: 9,
+        name: "Anna University",
+        location: { lat: 13.0111, lng: 80.2363 },
+        challenge: "You want to ask a student 'Which department is this?' in Tamil. How?",
+        options: ["இது எந்த துறை? (Idhu entha thurai?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
+        correctAnswer: "இது எந்த துறை? (Idhu entha thurai?)"
+    },
+    {
+        id: 10,
+        name: "Besant Nagar Beach",
+        location: { lat: 12.9989, lng: 80.2718 },
+        challenge: "You want to buy a coconut from a beach vendor. How do you ask 'How much for one?' in Tamil?",
+        options: ["ஒன்று எவ்வளவு? (Ondru evvalavu?)", "நன்றி! (Nandri!)", "சரி! (Sari!)"],
+        correctAnswer: "ஒன்று எவ்வளவு? (Ondru evvalavu?)"
+    }
+];
+
                     
 
             initMap(startDestination);
