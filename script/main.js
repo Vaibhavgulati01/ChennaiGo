@@ -4,7 +4,7 @@ console.log("JS loaded");
 let map; 
 let startDestinationForMap;
 
-// NEW: Game State Management
+// Game State Management
 class GameState {
     constructor() {
         this.level = 1;
@@ -20,14 +20,15 @@ class GameState {
         this.streakFreezes = 0;
         this.sessionStartTime = null;
         this.totalPlayTime = 0;
-        this.masteryStars = {}; // questId: stars (1-3)
+        this.masteryStars = {};
         this.cosmetics = {
             pins: [],
             frames: [],
             stickers: []
         };
         this.characterRelationships = {
-            ravi: { trust: 0, conversations: 0, lastMet: null }
+            ravi: { trust: 0, conversations: 0, lastMet: null },
+            anna: { trust: 0, conversations: 0, lastMet: null }
         };
         this.init();
     }
@@ -37,10 +38,7 @@ class GameState {
         this.generateDailyQuests();
         this.updateStreak();
         this.sessionStartTime = Date.now();
-        
-        setTimeout(() => {
-            this.updateDailyQuestsDisplay();
-        }, 100);
+        setTimeout(() => this.updateDailyQuestsDisplay(), 100);
     }
 
     getXPForLevel(level) {
@@ -60,13 +58,11 @@ class GameState {
         
         this.updateXPDisplay();
         this.saveProgress();
-        
         this.showXPGain(amount, reason);
     }
 
     levelUp() {
         this.level++;
-        this.showLevelUpModal();
         this.playSound('levelup');
     }
 
@@ -146,132 +142,37 @@ class GameState {
         this.saveProgress();
     }
 
-    checkMysteryChest() {
-        const chestChance = Math.min(0.1 + (this.streak * 0.02), 0.3);
-        if (Math.random() < chestChance) {
-            this.showMysteryChest();
+    playSound(type) {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const sounds = {
+                correct: { freq: 800, duration: 0.2 },
+                incorrect: { freq: 300, duration: 0.5 },
+                levelup: { freq: 1000, duration: 0.8 },
+                chest: { freq: 600, duration: 0.3 },
+                streak: { freq: 1200, duration: 0.15 }
+            };
+            
+            const sound = sounds[type];
+            if (!sound) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = sound.freq;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + sound.duration);
+        } catch (error) {
+            console.log('Audio not supported:', error);
         }
-    }
-
-    showMysteryChest() {
-        const modal = document.getElementById('mystery-chest-modal');
-        if (!modal) return;
-        
-        const chest = document.getElementById('mystery-chest');
-        const message = document.getElementById('chest-message');
-        const rewards = document.getElementById('chest-rewards');
-        const closeBtn = document.getElementById('close-chest-btn');
-        
-        modal.style.display = 'block';
-        chest.className = 'chest-closed';
-        chest.textContent = '📦';
-        message.textContent = 'Click to open your reward!';
-        rewards.innerHTML = '';
-        closeBtn.style.display = 'none';
-        
-        chest.onclick = () => {
-            chest.className = 'chest-opening';
-            setTimeout(() => {
-                chest.className = 'chest-opened';
-                chest.textContent = '✨';
-                this.generateChestRewards();
-                closeBtn.style.display = 'block';
-            }, 500);
-        };
-        
-        closeBtn.onclick = () => {
-            modal.style.display = 'none';
-        };
-    }
-
-    generateChestRewards() {
-        const rewards = document.getElementById('chest-rewards');
-        const message = document.getElementById('chest-message');
-        const possibleRewards = [
-            { type: 'xp', amount: 25, text: '25 Bonus XP', icon: '⭐' },
-            { type: 'freeze', amount: 1, text: 'Streak Freeze', icon: '❄️' },
-            { type: 'cosmetic', item: 'pin', text: 'Chennai Pin', icon: '📍' },
-            { type: 'cosmetic', item: 'sticker', text: 'Tamil Sticker', icon: '✨' }
-        ];
-        
-        const reward = possibleRewards[Math.floor(Math.random() * possibleRewards.length)];
-        
-        message.textContent = 'Congratulations!';
-        
-        const rewardElement = document.createElement('div');
-        rewardElement.className = 'reward-item';
-        rewardElement.innerHTML = `<span>${reward.icon}</span><span>${reward.text}</span>`;
-        rewards.appendChild(rewardElement);
-        
-        switch (reward.type) {
-            case 'xp':
-                this.addXP(reward.amount, 'Mystery Chest');
-                break;
-            case 'freeze':
-                this.streakFreezes += reward.amount;
-                break;
-            case 'cosmetic':
-                this.cosmetics[reward.item + 's'].push(reward.text);
-                break;
-        }
-        
-        this.playSound('chest');
-        this.saveProgress();
-    }
-
-    showLevelUpModal() {
-        const modal = document.getElementById('level-up-modal');
-        if (!modal) return;
-        
-        const levelDisplay = document.getElementById('new-level');
-        const rewardText = document.getElementById('level-reward-text');
-        const closeBtn = document.getElementById('close-level-btn');
-        
-        levelDisplay.textContent = `Level ${this.level}`;
-        rewardText.textContent = this.getLevelRewardText(this.level);
-        
-        modal.style.display = 'block';
-        this.createConfetti();
-        
-        closeBtn.onclick = () => {
-            modal.style.display = 'none';
-        };
-    }
-
-    getLevelRewardText(level) {
-        const rewards = [
-            'Welcome to Chennai!',
-            'Speed Bonus Unlocked!',
-            'Culture Cards Available!',
-            'Mastery Stars Unlocked!',
-            'Advanced Hints Available!',
-            'Expert Mode Unlocked!'
-        ];
-        return rewards[Math.min(level - 1, rewards.length - 1)] || 'New Adventures Await!';
-    }
-
-    createConfetti() {
-        const container = document.createElement('div');
-        container.className = 'celebration-confetti';
-        document.body.appendChild(container);
-        
-        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
-        
-        for (let i = 0; i < 50; i++) {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti-piece';
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.animationDelay = Math.random() * 2 + 's';
-            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            container.appendChild(confetti);
-        }
-        
-        setTimeout(() => {
-            if (container.parentElement) {
-                document.body.removeChild(container);
-            }
-        }, 4000);
     }
 
     showXPGain(amount, reason) {
@@ -304,13 +205,43 @@ class GameState {
         document.body.appendChild(xpGain);
         
         setTimeout(() => {
-            if (xpGain.parentElement) {
-                document.body.removeChild(xpGain);
-            }
-            if (style.parentElement) {
-                document.head.removeChild(style);
-            }
+            if (xpGain.parentElement) document.body.removeChild(xpGain);
+            if (style.parentElement) document.head.removeChild(style);
         }, 2000);
+    }
+
+    showReward(message) {
+        const reward = document.createElement('div');
+        reward.style.cssText = `
+            position: fixed;
+            top: 20%;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 5500;
+            animation: slideInRight 3s ease-out forwards;
+            max-width: 250px;
+        `;
+        reward.textContent = message;
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                0% { transform: translateX(100%); opacity: 0; }
+                20%, 80% { transform: translateX(0); opacity: 1; }
+                100% { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(reward);
+        
+        setTimeout(() => {
+            if (reward.parentElement) document.body.removeChild(reward);
+            if (style.parentElement) document.head.removeChild(style);
+        }, 3000);
     }
 
     updateXPDisplay() {
@@ -337,9 +268,7 @@ class GameState {
                 </div>
             `;
             const chittuContainer = document.getElementById('chittu-container');
-            if (chittuContainer) {
-                chittuContainer.prepend(xpDisplay);
-            }
+            if (chittuContainer) chittuContainer.prepend(xpDisplay);
         } else {
             const levelNumber = xpDisplay.querySelector('.level-number');
             const xpText = xpDisplay.querySelector('.xp-text');
@@ -404,106 +333,6 @@ class GameState {
         });
     }
 
-    checkSessionTime() {
-        const sessionTime = Date.now() - this.sessionStartTime;
-        const fifteenMinutes = 15 * 60 * 1000;
-        
-        if (sessionTime > fifteenMinutes) {
-            this.showHealthySessionPrompt();
-        }
-    }
-
-    showHealthySessionPrompt() {
-        const prompt = document.createElement('div');
-        prompt.className = 'session-warning';
-        prompt.innerHTML = `
-            <h3>🌟 Great Progress!</h3>
-            <p>You've been learning for 15+ minutes.</p>
-            <p>Take a break or end on this win?</p>
-            <button onclick="this.parentElement.remove();" style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: white; color: #d97706; font-weight: bold; cursor: pointer;">Continue</button>
-            <button onclick="location.reload();" style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: rgba(255,255,255,0.2); color: white; font-weight: bold; cursor: pointer;">Take Break</button>
-        `;
-        document.body.appendChild(prompt);
-        
-        setTimeout(() => {
-            if (prompt.parentElement) {
-                prompt.remove();
-            }
-        }, 10000);
-    }
-
-    playSound(type) {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            const sounds = {
-                correct: { freq: 800, duration: 0.2 },
-                incorrect: { freq: 300, duration: 0.5 },
-                levelup: { freq: 1000, duration: 0.8 },
-                chest: { freq: 600, duration: 0.3 },
-                streak: { freq: 1200, duration: 0.15 }
-            };
-            
-            const sound = sounds[type];
-            if (!sound) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = sound.freq;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + sound.duration);
-        } catch (error) {
-            console.log('Audio not supported:', error);
-        }
-    }
-
-    showReward(message) {
-        const reward = document.createElement('div');
-        reward.style.cssText = `
-            position: fixed;
-            top: 20%;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            z-index: 5500;
-            animation: slideInRight 3s ease-out forwards;
-            max-width: 250px;
-        `;
-        reward.textContent = message;
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                0% { transform: translateX(100%); opacity: 0; }
-                20%, 80% { transform: translateX(0); opacity: 1; }
-                100% { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-        document.body.appendChild(reward);
-        
-        setTimeout(() => {
-            if (reward.parentElement) {
-                document.body.removeChild(reward);
-            }
-            if (style.parentElement) {
-                document.head.removeChild(style);
-            }
-        }, 3000);
-    }
-
     saveProgress() {
         const saveData = {
             level: this.level,
@@ -532,6 +361,13 @@ class GameState {
             this.sessionStartTime = Date.now();
         }
     }
+
+    checkMysteryChest() {
+        const chestChance = Math.min(0.1 + (this.streak * 0.02), 0.3);
+        if (Math.random() < chestChance) {
+            console.log('Mystery chest would appear here');
+        }
+    }
 }
 
 // Initialize game state
@@ -541,7 +377,7 @@ const gameState = new GameState();
 let globalMap = null;
 let globalStartQuestFunction = null;
 
-// GLOBAL STREET VIEW FUNCTION
+// STREET VIEW FUNCTION
 function showStreetView(location) { 
     console.log('Starting Street View at:', location);
     
@@ -576,6 +412,190 @@ function showStreetView(location) {
         }
     }, 800); 
 }
+
+// AUTO DRIVER ANNA'S CONVERSATION SYSTEM
+const annaConversations = {
+    introduction: {
+        character: "Auto Driver Anna",
+        text: "Vanakkam! Welcome to Chennai! I'm Anna, your friendly auto driver. I've been driving these streets for 15 years and know every corner of our beautiful city!",
+        options: [
+            { text: "Nice to meet you! What makes Chennai special?", nextNode: "chennai_special", trust: 5 },
+            { text: "I'm excited to explore! Where should I start?", nextNode: "where_to_start", trust: 8 },
+            { text: "Can you teach me some Tamil while we ride?", nextNode: "tamil_basics", trust: 10 },
+            { text: "Tell me about the best places to visit", nextNode: "best_places", trust: 7 }
+        ]
+    },
+    
+    chennai_special: {
+        character: "Auto Driver Anna",
+        text: "Ah, Chennai is where tradition meets modernity! We have ancient temples next to IT parks, classical music echoing from sabhas, and the most delicious South Indian food. The sea breeze, the warm people - this city has soul!",
+        options: [
+            { text: "That sounds amazing! Show me around!", nextNode: "ready_to_explore", trust: 8 },
+            { text: "I want to see the traditional side first", nextNode: "traditional_places", trust: 6 },
+            { text: "What about the food? I'm hungry!", nextNode: "food_culture", trust: 5 }
+        ]
+    },
+    
+    where_to_start: {
+        character: "Auto Driver Anna",
+        text: "Good question! Chennai has so much to offer. We have Marina Beach for relaxation, Kapaleeshwarar Temple for spirituality, T.Nagar for shopping, and many hidden gems. What interests you most?",
+        options: [
+            { text: "I love beaches and ocean views!", nextNode: "beach_recommendation", trust: 7 },
+            { text: "I'm interested in temples and culture", nextNode: "temple_recommendation", trust: 6 },
+            { text: "Shopping sounds fun!", nextNode: "shopping_recommendation", trust: 4 },
+            { text: "Show me all the must-visit places!", nextNode: "complete_tour", trust: 10 }
+        ]
+    },
+    
+    tamil_basics: {
+        character: "Auto Driver Anna",
+        text: "Of course! Tamil is a beautiful language. Let me teach you some basics: 'Vanakkam' means hello, 'Nandri' means thank you, 'Vilai enna?' means what's the price? These will help you everywhere in Chennai!",
+        options: [
+            { text: "Nandri! Teach me more while we explore!", nextNode: "ready_to_explore", trust: 12 },
+            { text: "That's helpful! Where can I practice?", nextNode: "practice_places", trust: 8 },
+            { text: "What other useful phrases should I know?", nextNode: "useful_phrases", trust: 6 }
+        ]
+    },
+    
+    best_places: {
+        character: "Auto Driver Anna",
+        text: "I'll tell you the real gems! Marina Beach for sunrise, Kapaleeshwarar Temple for peace, T.Nagar for authentic shopping experience, and many more places where locals go. Each place has its own story!",
+        options: [
+            { text: "Tell me these stories while we visit!", nextNode: "ready_to_explore", trust: 10 },
+            { text: "Which place has the most interesting story?", nextNode: "interesting_stories", trust: 7 },
+            { text: "I want to experience Chennai like a local", nextNode: "local_experience", trust: 9 }
+        ]
+    },
+    
+    traditional_places: {
+        character: "Auto Driver Anna",
+        text: "Perfect choice! We have magnificent temples like Kapaleeshwarar, cultural centers where classical music flows, and traditional markets where you can hear pure Tamil. These places will show you Chennai's heart!",
+        options: [
+            { text: "Let's start this cultural journey!", nextNode: "ready_to_explore", trust: 8 },
+            { text: "Which temple is the most beautiful?", nextNode: "temple_details", trust: 6 }
+        ]
+    },
+    
+    food_culture: {
+        character: "Auto Driver Anna",
+        text: "Ah, food! Chennai has the best idli, dosa, and filter coffee in the world! Every street has amazing food stalls. But first, let me show you the places, then we'll find the best food spots!",
+        options: [
+            { text: "Sounds like a plan! Let's go!", nextNode: "ready_to_explore", trust: 7 },
+            { text: "I can't wait to try authentic Tamil food!", nextNode: "ready_to_explore", trust: 8 }
+        ]
+    },
+    
+    beach_recommendation: {
+        character: "Auto Driver Anna",
+        text: "Marina Beach is perfect for you! It's the world's second longest urban beach. You can watch fishermen, enjoy sea breeze, and see beautiful sunrises. There's also Elliot's Beach for a quieter experience.",
+        options: [
+            { text: "Marina Beach sounds perfect! Let's go there first!", nextNode: "ready_to_explore", trust: 8 },
+            { text: "Show me all the beaches and other places too!", nextNode: "complete_tour", trust: 9 }
+        ]
+    },
+    
+    temple_recommendation: {
+        character: "Auto Driver Anna",
+        text: "Kapaleeshwarar Temple is our most famous one - over 1300 years old! The architecture will amaze you, and the spiritual energy is incredible. There are also many other beautiful temples around the city.",
+        options: [
+            { text: "That sounds incredible! I want to visit!", nextNode: "ready_to_explore", trust: 8 },
+            { text: "Show me multiple temples and other places!", nextNode: "complete_tour", trust: 7 }
+        ]
+    },
+    
+    shopping_recommendation: {
+        character: "Auto Driver Anna",
+        text: "T.Nagar is a shopper's paradise! It's one of the busiest commercial areas in the world. You'll find everything from silk sarees to modern gadgets, all at great prices. The energy there is infectious!",
+        options: [
+            { text: "I love busy markets! Let's go shopping!", nextNode: "ready_to_explore", trust: 6 },
+            { text: "Show me T.Nagar and other amazing places!", nextNode: "complete_tour", trust: 8 }
+        ]
+    },
+    
+    practice_places: {
+        character: "Auto Driver Anna",
+        text: "Markets are perfect for practicing Tamil! Vendors love when tourists try to speak Tamil. Also, temples where you can hear traditional Tamil, and tea stalls where locals gather for friendly chats!",
+        options: [
+            { text: "Let's visit these places so I can practice!", nextNode: "ready_to_explore", trust: 10 }
+        ]
+    },
+    
+    useful_phrases: {
+        character: "Auto Driver Anna",
+        text: "'Enge pōnum?' means 'Where are you going?', 'Evvalavu?' means 'How much?', 'Puriyala' means 'I don't understand'. These will make your Chennai trip much easier!",
+        options: [
+            { text: "Nandri! Now let's explore and practice!", nextNode: "ready_to_explore", trust: 9 }
+        ]
+    },
+    
+    interesting_stories: {
+        character: "Auto Driver Anna",
+        text: "Every place has tales! Marina Beach has stories of fishermen and freedom fighters. Kapaleeshwarar Temple has legends of Lord Shiva. T.Nagar transformed from a residential area to a shopping hub. Each visit reveals more!",
+        options: [
+            { text: "I want to hear all these stories! Let's go!", nextNode: "ready_to_explore", trust: 10 }
+        ]
+    },
+    
+    local_experience: {
+        character: "Auto Driver Anna",
+        text: "Perfect! We'll skip the tourist traps and go where locals go. Real Chennai is in the small tea stalls, the neighborhood temples, the busy markets, and the peaceful beach corners. Ready for an authentic adventure?",
+        options: [
+            { text: "Yes! Show me the real Chennai!", nextNode: "ready_to_explore", trust: 12 }
+        ]
+    },
+    
+    temple_details: {
+        character: "Auto Driver Anna",
+        text: "Kapaleeshwarar Temple is the crown jewel - ancient Dravidian architecture with colorful gopurams reaching the sky. The stone carvings tell stories from thousands of years ago. It's living history!",
+        options: [
+            { text: "I need to see this! Let's visit!", nextNode: "ready_to_explore", trust: 8 }
+        ]
+    },
+    
+    complete_tour: {
+        character: "Auto Driver Anna",
+        text: "Excellent! A complete Chennai experience it is! We have Marina Beach for the sea, Kapaleeshwarar Temple for culture, T.Nagar for shopping, and many more gems. Each place will teach you something new about our city!",
+        options: [
+            { text: "Perfect! I'm ready to explore everything!", nextNode: "show_all_places", trust: 15 }
+        ]
+    },
+    
+    ready_to_explore: {
+        character: "Auto Driver Anna",
+        text: "Wonderful! But before we start our journey, let me teach you one important Tamil phrase. When you want to ask 'What is the price?' you say 'Vilai enna?'. Can you repeat it?",
+        options: [
+            { text: "Where is it?", nextNode: "wrong_answer", trust: 0 },
+            { text: "What is the price?", nextNode: "correct_answer", trust: 10 },
+            { text: "Thank you", nextNode: "wrong_answer", trust: 0 }
+        ]
+    },
+    
+    show_all_places: {
+        character: "Auto Driver Anna",
+        text: "Before we begin exploring all these amazing places, let me teach you an essential phrase! To ask 'What is the price?' in Tamil, we say 'Vilai enna?'. This will be very useful! Can you say it back to me?",
+        options: [
+            { text: "Where is it?", nextNode: "wrong_answer", trust: 0 },
+            { text: "What is the price?", nextNode: "correct_answer", trust: 10 },
+            { text: "Thank you", nextNode: "wrong_answer", trust: 0 }
+        ]
+    },
+    
+    wrong_answer: {
+        character: "Auto Driver Anna",
+        text: "Haha, close but not quite! Remember, 'Vilai enna?' means 'What is the price?'. Don't worry, you'll learn as we explore. Now hop in my auto - Chennai awaits!",
+        options: [
+            { text: "Okay, let's go explore Chennai!", action: "start_map_view", trust: 5 }
+        ]
+    },
+    
+    correct_answer: {
+        character: "Auto Driver Anna",
+        text: "Perfect! 'Vilai enna?' - excellent pronunciation! You're going to do great in Chennai. Come, get in my auto and let's discover this beautiful city together!",
+        options: [
+            { text: "Let's explore Chennai!", action: "start_map_view", trust: 15 }
+        ]
+    }
+};
 
 // RAVI'S CONVERSATION SYSTEM
 const raviConversations = {
@@ -754,54 +774,7 @@ const raviConversations = {
     }
 };
 
-// Original dialogue script
-const script = { 
-    start: { 
-        character: "Auto Driver Anna", 
-        text: "Hey! Over here! Welcome to Chennai, sir! Vanakkam! I saw you coming from airport. <i class='tamil-word'>Enge pōnum</i>? Where do you want to go?", 
-        options: [ 
-            { text: "I'd like to see a famous, ancient temple.", destination: "Kapaleeshwarar Temple" }, 
-            { text: "Take me to the biggest shopping area!", destination: "T. Nagar" }, 
-            { text: "I want to see the famous beach.", destination: "Marina Beach" } 
-        ], 
-        action: (choice) => showStreetDialogueNode('learning_moment', choice.destination) 
-    }, 
-    learning_moment: { 
-        character: "Auto Driver Anna", 
-        text: (dest) => `Ah, ${dest}! Excellent choice, sir! Before we go, let me teach you something. To ask 'What is the price?' in Tamil, we say <i class='tamil-word'>'Vilai enna?'</i>. Can you repeat it back to me?`, 
-        options: [ 
-            { text: "Where is it?" }, 
-            { text: "What is the price?" },
-            { text: "Thank you" } 
-        ], 
-        action: (choice, dest) => { 
-            if (choice.text === "What is the price?") {
-                gameState.addXP(15, 'Tamil Phrase');
-                gameState.updateDailyQuest('phrases');
-                gameState.updateDailyQuest('words');
-                gameState.playSound('correct');
-                showStreetDialogueNode('correct_answer', dest);
-            } else {
-                gameState.playSound('incorrect');
-                showStreetDialogueNode('wrong_answer', dest);
-            }
-        } 
-    }, 
-    wrong_answer: { 
-        character: "Auto Driver Anna", 
-        text: "Haha, close but not quite! Remember, it's <i class='tamil-word'>'Vilai enna?'</i> which means 'What is the price?'. Don't worry, you'll learn. Hop in, let's go!", 
-        options: [{text: "Okay, let's go!"}], 
-        action: (c, d) => startGame(d) 
-    }, 
-    correct_answer: { 
-        character: "Auto Driver Anna", 
-        text: "Perfect! <i class='tamil-word'>Nalla sonninga!</i> You said 'What is the price?' correctly! You're a quick learner! Come, get in my auto. We're going to have fun exploring Chennai!", 
-        options: [{text: "Let's explore Chennai!"}], 
-        action: (c, d) => startGame(d) 
-    } 
-};
-
-// Custom transition function
+// CORE FUNCTIONS
 function customTransition() {
     return new Promise((resolve) => {
         const body = document.body;
@@ -820,14 +793,11 @@ function customTransition() {
             if (loader) loader.classList.remove('active');
             if (transitionText) transitionText.classList.remove('active');
             
-            setTimeout(() => {
-                resolve();
-            }, 200);
+            setTimeout(() => resolve(), 200);
         }, 2500);
     });
 }
 
-// Session timer
 let sessionTimer;
 function startSessionTimer() {
     let seconds = 0;
@@ -886,65 +856,117 @@ async function beginGame() {
         startScreen.style.display = 'none';
     }
     await customTransition();
-    startDialogue();
+    startAnnaConversation();
 }
 
-function startDialogue() {
+function startAnnaConversation() {
     const airportScene = document.getElementById('airport-road-scene');
     if (airportScene) {
-        airportScene.style.display = 'block';
-        setTimeout(() => {
-            showStreetDialogueNode('start');
-        }, 1000);
+        airportScene.style.display = 'none';
     }
+    
+    showAnnaConversationScene('introduction');
 }
 
-function showStreetDialogueNode(nodeKey, context = null) {
-    const node = script[nodeKey];
-    if (!node) return;
+function showAnnaConversationScene(nodeKey = 'introduction') {
+    console.log('Starting Anna conversation:', nodeKey);
+    const node = annaConversations[nodeKey];
+    if (!node) {
+        console.error('Anna conversation node not found:', nodeKey);
+        return;
+    }
     
-    const streetDialogueBox = document.getElementById('street-dialogue-box');
-    const streetDialogueCharacter = document.getElementById('street-dialogue-character');
-    const streetDialogueText = document.getElementById('street-dialogue-text');
-    const streetDialogueOptions = document.getElementById('street-dialogue-options');
+    let annaScene = document.getElementById('anna-scene');
+    if (!annaScene) {
+        annaScene = document.createElement('div');
+        annaScene.id = 'anna-scene';
+        annaScene.className = 'character-scene';
+        annaScene.innerHTML = `
+            <div class="scene-background" style="background-image: url('autoanna.png'); background-size: cover; background-position: center;"></div>
+            <div class="character-dialogue-container">
+                <div class="character-info">
+                    <h3 id="anna-character-name">Auto Driver Anna</h3>
+                    <div class="character-avatar">🚗</div>
+                </div>
+                <div class="dialogue-content">
+                    <p id="anna-dialogue-text">Loading...</p>
+                    <div id="anna-dialogue-options" class="dialogue-options-grid"></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(annaScene);
+    }
     
-    if (!streetDialogueBox || !streetDialogueCharacter || !streetDialogueText || !streetDialogueOptions) return;
+    annaScene.style.display = 'block';
     
-    streetDialogueCharacter.innerHTML = `<span class="driver-name">${node.character}</span>`;
-    streetDialogueText.innerHTML = typeof node.text === 'function' ? node.text(context) : node.text;
-    streetDialogueOptions.innerHTML = '';
+    const dialogueText = document.getElementById('anna-dialogue-text');
+    if (dialogueText) {
+        dialogueText.innerHTML = node.text;
+    }
     
-    node.options.forEach(option => {
-        const button = document.createElement('button');
-        button.innerText = option.text;
-        button.onclick = () => node.action(option, context);
-        streetDialogueOptions.appendChild(button);
-    });
+    const optionsContainer = document.getElementById('anna-dialogue-options');
+    if (optionsContainer) {
+        optionsContainer.innerHTML = '';
+        
+        node.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'dialogue-option-btn';
+            button.textContent = option.text;
+            
+            button.onclick = () => {
+                console.log('Anna button clicked:', option.text, 'Next:', option.nextNode, 'Action:', option.action);
+                
+                if (option.trust) {
+                    gameState.updateCharacterRelationship('anna', option.trust);
+                    gameState.addXP(option.trust, 'Building Friendship with Anna');
+                }
+                
+                if (option.action === 'start_map_view') {
+                    console.log('Starting map view...');
+                    startMapView();
+                } else if (option.nextNode) {
+                    showAnnaConversationScene(option.nextNode);
+                }
+            };
+            
+            optionsContainer.appendChild(button);
+        });
+    }
     
+    annaScene.style.opacity = '0';
     setTimeout(() => {
-        streetDialogueBox.classList.add('show');
-    }, 1000);
+        annaScene.style.opacity = '1';
+    }, 100);
 }
 
-function startGame(destination) {
-    startDestinationForMap = destination;
+function startMapView() {
+    console.log('Starting map view after Anna conversation...');
     
-    const airportScene = document.getElementById('airport-road-scene');
-    if (airportScene) {
-        airportScene.style.opacity = '0';
-        setTimeout(() => {
-            airportScene.style.display = 'none';
-        }, 500);
+    const annaScene = document.getElementById('anna-scene');
+    if (annaScene) {
+        annaScene.style.display = 'none';
     }
-
-    const mapContainer = document.getElementById('map-container'); 
-    if (mapContainer) {
-        mapContainer.style.opacity = '1'; 
+    
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) {
+        const newMapContainer = document.createElement('div');
+        newMapContainer.id = 'map-container';
+        newMapContainer.style.opacity = '1';
+        document.body.appendChild(newMapContainer);
+        
         injectMainGameUI();
         window.runMainGameLogic = runMainGameLogic;
-        const scriptTag = document.createElement('script'); 
-        scriptTag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=runMainGameLogic`; 
-        scriptTag.async = true; 
+        const scriptTag = document.createElement('script');
+        scriptTag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=runMainGameLogic`;
+        scriptTag.async = true;
+        document.head.appendChild(scriptTag);
+    } else {
+        mapContainer.style.opacity = '1';
+        injectMainGameUI();
+        window.runMainGameLogic = runMainGameLogic;
+        const scriptTag = document.createElement('script');
+        scriptTag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=runMainGameLogic`;
+        scriptTag.async = true;
         document.head.appendChild(scriptTag);
     }
 }
@@ -958,7 +980,6 @@ function injectMainGameUI() {
         <div id="temple-toggle-button">📖</div>
         <div id="word-temple"><h2>Your Word Temple</h2><ul id="word-list"></ul></div>
         
-        <!-- NEW: Ravi Conversation Scene -->
         <div id="ravi-scene" class="character-scene" style="display: none;">
             <div class="scene-background" style="background-image: url('exp1.png'); background-size: cover; background-position: center;"></div>
             <div class="character-dialogue-container">
@@ -982,7 +1003,6 @@ function injectMainGameUI() {
         <div id="quest-box"><h2 id="quest-title"></h2><p id="quest-challenge"></p><div class="options-container" id="quest-options-main"></div></div>`;
 }
 
-// Ravi conversation system
 function showRaviConversation(nodeKey = 'introduction') {
     console.log('Starting Ravi conversation:', nodeKey);
     const node = raviConversations[nodeKey];
@@ -991,20 +1011,17 @@ function showRaviConversation(nodeKey = 'introduction') {
         return;
     }
     
-    // Hide map and show Ravi scene
     const mapElement = document.getElementById('map');
     const raviScene = document.getElementById('ravi-scene');
     
     if (mapElement) mapElement.style.display = 'none';
     if (raviScene) raviScene.style.display = 'block';
     
-    // Update dialogue content
     const dialogueText = document.getElementById('ravi-dialogue-text');
     if (dialogueText) {
         dialogueText.innerHTML = node.text;
     }
     
-    // Clear and populate options
     const optionsContainer = document.getElementById('ravi-dialogue-options');
     if (optionsContainer) {
         optionsContainer.innerHTML = '';
@@ -1034,7 +1051,6 @@ function showRaviConversation(nodeKey = 'introduction') {
         });
     }
     
-    // Add transition effect
     if (raviScene) {
         raviScene.style.opacity = '0';
         setTimeout(() => {
@@ -1043,11 +1059,9 @@ function showRaviConversation(nodeKey = 'introduction') {
     }
 }
 
-// Marina Beach quest function
 function startMarinaBeachQuestDirectly() {
     console.log('Starting Marina Beach quest directly...');
     
-    // Verify map is ready
     if (!globalMap) {
         console.error('Map not ready, waiting...');
         setTimeout(startMarinaBeachQuestDirectly, 1000);
@@ -1060,20 +1074,17 @@ function startMarinaBeachQuestDirectly() {
         return;
     }
     
-    // Hide Ravi scene and show map
     const raviScene = document.getElementById('ravi-scene');
     const mapElement = document.getElementById('map');
     
     if (raviScene) raviScene.style.display = 'none';
     if (mapElement) mapElement.style.display = 'block';
     
-    // Update chittu with transition message
     const chittuText = document.getElementById('chittu-text');
     if (chittuText) {
         chittuText.textContent = "Following Ravi to explore Marina Beach...";
     }
     
-    // Create Marina Beach quest object
     const marinaQuest = {
         id: 1,
         name: "Marina Beach",
@@ -1090,7 +1101,6 @@ function startMarinaBeachQuestDirectly() {
         speedBonusTime: 15
     };
     
-    // Create a fake marker for compatibility
     const fakeMarinaMarker = {
         setIcon: function(iconConfig) {
             console.log('Marina Beach marker updated:', iconConfig);
@@ -1104,7 +1114,6 @@ function startMarinaBeachQuestDirectly() {
         }
     };
     
-    // Wait a moment then call the quest function
     setTimeout(() => {
         console.log('Calling startQuest function...');
         if (globalStartQuestFunction) {
@@ -1116,13 +1125,11 @@ function startMarinaBeachQuestDirectly() {
 }
 
 function runMainGameLogic() {
-    const startDestination = startDestinationForMap; 
     const chittuText = document.getElementById('chittu-text'); 
     const questBox = document.getElementById('quest-box');
     const wordTemple = document.getElementById('word-temple');
     const templeToggleButton = document.getElementById('temple-toggle-button');
 
-    // Enhanced quests with mastery and culture cards
     const quests = [
         {
             id: 1,
@@ -1276,7 +1283,7 @@ function runMainGameLogic() {
         }
     ];
 
-    initMap(startDestination);
+    initMap();
     
     if (templeToggleButton && wordTemple) {
         templeToggleButton.addEventListener('click', () => { 
@@ -1292,10 +1299,9 @@ function runMainGameLogic() {
         } 
     });
     
-    function initMap(startDest) { 
+    function initMap() { 
         loadProgress(); 
         
-        // Set global map reference
         globalMap = new google.maps.Map(document.getElementById("map"), { 
             center: { lat: 13.06, lng: 80.25 }, 
             zoom: 13, 
@@ -1319,9 +1325,12 @@ function runMainGameLogic() {
             templeToggleButton.style.display = 'flex'; 
         }
         
+        if (chittuText) {
+            chittuText.innerText = `Anna brought you to Chennai! Click any yellow marker to start exploring and learning Tamil.`;
+        }
+        
         quests.forEach(q => { 
             const isCompleted = gameState.completedQuests.includes(q.id); 
-            const masteryLevel = gameState.masteryStars[q.id] || 0;
             
             const marker = new google.maps.Marker({ 
                 position: q.location, 
@@ -1332,24 +1341,17 @@ function runMainGameLogic() {
                         "https://maps.google.com/mapfiles/ms/icons/green-dot.png" : 
                         "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png", 
                     scaledSize: new google.maps.Size(40, 40) 
-                }, 
-                animation: (isCompleted || q.name !== startDest) ? null : google.maps.Animation.BOUNCE 
+                }
             }); 
             
-            // Store Marina Beach marker reference
             if (q.name === "Marina Beach") {
                 window.marinaBechMarkerReference = marker;
-            }
-            
-            if (q.name === startDest && chittuText) {
-                chittuText.innerText = `Welcome to ${startDest}! Click the bouncing marker to begin.`;
             }
             
             marker.addListener('click', () => { 
                 marker.setAnimation(null);
                 console.log('Marker clicked:', q.name);
                 
-                // If it's Marina Beach, show Ravi conversation first
                 if (q.name === "Marina Beach") {
                     console.log('Starting Ravi conversation...');
                     showRaviConversation('introduction');
@@ -1360,7 +1362,6 @@ function runMainGameLogic() {
         }); 
     }
                 
-    // startQuest function
     function startQuest(quest, marker) {    
         console.log('StartQuest called for:', quest.name);
         
@@ -1414,7 +1415,6 @@ function runMainGameLogic() {
         }, 2000);
     }
 
-    // Store global reference to startQuest
     globalStartQuestFunction = startQuest;
     console.log('StartQuest function reference stored globally');
 
