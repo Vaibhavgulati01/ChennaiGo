@@ -1084,8 +1084,8 @@ body.transition-active:after {
 /* Chennai Guru Chatbot Styles */
 #chennai-guru-toggle {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 52px;
+    right: 20px;
     z-index: 5000;
     cursor: pointer;
     transition: all 0.3s ease;
