@@ -1081,3 +1081,311 @@ body.transition-active:after {
         font-size: 1.1em;
     }
 }
+/* Chennai Guru Chatbot Styles */
+#chennai-guru-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 5000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.guru-avatar {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    animation: guruFloat 3s ease-in-out infinite;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.guru-tooltip {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+#chennai-guru-toggle:hover .guru-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes guruFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+#chennai-guru-chat {
+    position: fixed;
+    bottom: 120px;
+    right: 30px;
+    width: 400px;
+    height: 500px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 4999;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 2px solid rgba(139, 92, 246, 0.2);
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.guru-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.guru-header-avatar {
+    font-size: 24px;
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.guru-header-text h3 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.guru-header-text span {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+#close-chat {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+#close-chat:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: linear-gradient(to bottom, #f8fafc, #ffffff);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    display: flex;
+    gap: 10px;
+    animation: messageSlide 0.3s ease-out;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.message.bot .message-avatar {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+}
+
+.message.user .message-avatar {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.message-content {
+    max-width: 280px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+.message.bot .message-content {
+    background: rgba(139, 92, 246, 0.1);
+    color: #374151;
+}
+
+.message.user .message-content {
+    background: #8b5cf6;
+    color: white;
+}
+
+.chat-input-container {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 12px;
+}
+
+#chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 25px;
+    outline: none;
+    font-size: 0.95em;
+    transition: border-color 0.3s ease;
+}
+
+#chat-input:focus {
+    border-color: #8b5cf6;
+}
+
+#send-message {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+#send-message:hover {
+    transform: translateY(-2px);
+}
+
+#send-message:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.quick-actions {
+    padding: 15px 20px;
+    background: #f8fafc;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.quick-btn {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #8b5cf6;
+    padding: 8px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.3s ease;
+}
+
+.quick-btn:hover {
+    background: rgba(139, 92, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-style: italic;
+    padding: 8px 0;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #8b5cf6;
+    animation: typingDot 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingDot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-8px); opacity: 1; }
+}
+
+@keyframes messageSlide {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    #chennai-guru-chat {
+        width: calc(100vw - 20px);
+        height: 70vh;
+        bottom: 110px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .message-content {
+        max-width: 220px;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+    
+    .quick-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

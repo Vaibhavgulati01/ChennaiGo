@@ -122,8 +122,40 @@
   <div id="session-timer">
     <span id="session-time">00:00</span>
   </div>
+<!-- Chennai Guru Chatbot -->
+  <div id="chennai-guru-toggle">
+    <div class="guru-avatar">🧙‍♂️</div>
+    <div class="guru-tooltip">Ask Chennai Guru!</div>
+  </div>
 
+  <div id="chennai-guru-chat">
+    <div class="chat-header">
+      <div class="guru-header-info">
+        <div class="guru-header-avatar">🧙‍♂️</div>
+        <div class="guru-header-text">
+          <h3>Chennai Guru</h3>
+          <span>Your Cultural Guide</span>
+        </div>
+      </div>
+      <button id="close-chat">×</button>
+    </div>
+    
+    <div id="chat-messages"></div>
+    
+    <div class="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Ask me about Chennai places, culture, food...">
+      <button id="send-message">Send</button>
+    </div>
+    
+    <div class="quick-actions">
+      <button class="quick-btn" data-message="What are the best places to visit in Chennai?">🏛️ Places</button>
+      <button class="quick-btn" data-message="Tell me about Chennai food culture">🍽️ Food</button>
+      <button class="quick-btn" data-message="What festivals are celebrated in Chennai?">🎊 Festivals</button>
+    </div>
+  </div>
   <!-- External JS -->
   <script type="module" src="./script/main.js"></script>
+
+  
 </body>
 </html>

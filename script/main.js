@@ -1703,4 +1703,446 @@ function runMainGameLogic() {
             toggleButton.style.display = 'flex';
         }
     }
+    // DEBUGGED Chennai Guru Chatbot Implementation
+// ==========================================
+// CHENNAI GURU CHATBOT - COMPLETE CODE
+// ==========================================
+
+class ChennaiGuruChatbot {
+    constructor() {
+        this.apiKey = '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';
+        this.isOpen = false;
+        this.isTyping = false;
+        console.log('🧙‍♂️ Chennai Guru initialized');
+        this.init();
+    }
+
+    init() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => this.setupElements(), 500);
+            });
+        } else {
+            setTimeout(() => this.setupElements(), 500);
+        }
+    }
+
+    setupElements() {
+        console.log('🔍 Setting up Chennai Guru elements...');
+        
+        const toggle = document.getElementById('chennai-guru-toggle');
+        const chatContainer = document.getElementById('chennai-guru-chat');
+        
+        console.log('Toggle element found:', !!toggle);
+        console.log('Chat container found:', !!chatContainer);
+        
+        if (!toggle || !chatContainer) {
+            console.error('❌ Chennai Guru elements not found in DOM');
+            return;
+        }
+        
+        this.setupEventListeners();
+        this.showWelcomeMessage();
+        console.log('✅ Chennai Guru setup complete');
+    }
+
+    setupEventListeners() {
+        console.log('🎯 Setting up event listeners...');
+        
+        const toggle = document.getElementById('chennai-guru-toggle');
+        const closeChat = document.getElementById('close-chat');
+        const sendButton = document.getElementById('send-message');
+        const chatInput = document.getElementById('chat-input');
+        const quickButtons = document.querySelectorAll('.quick-btn');
+
+        if (toggle) {
+            toggle.addEventListener('click', (e) => {
+                console.log('🖱️ Chennai Guru toggle clicked!');
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleChat();
+            });
+            console.log('✅ Toggle listener added');
+        } else {
+            console.error('❌ Toggle element not found');
+        }
+
+        if (closeChat) {
+            closeChat.addEventListener('click', (e) => {
+                console.log('❌ Close chat clicked');
+                e.preventDefault();
+                this.closeChat();
+            });
+        }
+
+        if (sendButton) {
+            sendButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.sendMessage();
+            });
+        }
+
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+        }
+
+        quickButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const message = e.target.getAttribute('data-message');
+                console.log('Quick button clicked:', message);
+                this.sendQuickMessage(message);
+            });
+        });
+
+        console.log(`🎯 Event listeners setup complete. Quick buttons found: ${quickButtons.length}`);
+    }
+
+    toggleChat() {
+        console.log('🔄 Toggling chat, current state:', this.isOpen);
+        
+        const chatContainer = document.getElementById('chennai-guru-chat');
+        if (!chatContainer) {
+            console.error('❌ Chat container not found during toggle');
+            return;
+        }
+
+        this.isOpen = !this.isOpen;
+        console.log('📱 Chat now:', this.isOpen ? 'OPEN' : 'CLOSED');
+        
+        if (this.isOpen) {
+            chatContainer.style.display = 'flex';
+            chatContainer.style.opacity = '0';
+            chatContainer.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                chatContainer.style.transition = 'all 0.3s ease';
+                chatContainer.style.opacity = '1';
+                chatContainer.style.transform = 'translateY(0)';
+            }, 10);
+            
+            const input = document.getElementById('chat-input');
+            if (input) setTimeout(() => input.focus(), 400);
+            
+        } else {
+            chatContainer.style.transition = 'all 0.3s ease';
+            chatContainer.style.opacity = '0';
+            chatContainer.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                chatContainer.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    closeChat() {
+        console.log('❌ Closing chat');
+        const chatContainer = document.getElementById('chennai-guru-chat');
+        if (chatContainer) {
+            chatContainer.style.transition = 'all 0.3s ease';
+            chatContainer.style.opacity = '0';
+            chatContainer.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                chatContainer.style.display = 'none';
+                this.isOpen = false;
+            }, 300);
+        }
+    }
+
+    showWelcomeMessage() {
+        setTimeout(() => {
+            console.log('👋 Showing welcome message');
+            this.addMessage('bot', "Vanakkam! 🙏 I'm Chennai Guru, your cultural guide! Ask me anything about Chennai's places, food, culture, or traditions. How can I help you explore Namma Chennai today?");
+        }, 1000);
+    }
+
+    async sendMessage() {
+        console.log('📤 Sending message...');
+        const input = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-message');
+        
+        if (!input || this.isTyping) {
+            console.log('⏸️ Cannot send - input missing or already typing');
+            return;
+        }
+
+        const message = input.value.trim();
+        if (!message) {
+            console.log('⏸️ Empty message, not sending');
+            return;
+        }
+
+        console.log('💬 User message:', message);
+
+        this.addMessage('user', message);
+        input.value = '';
+        
+        if (sendButton) sendButton.disabled = true;
+        this.showTypingIndicator();
+
+        try {
+            const response = await this.getGrokResponse(message);
+            console.log('🤖 Bot response received');
+            this.hideTypingIndicator();
+            this.addMessage('bot', response);
+        } catch (error) {
+            console.error('🚫 Grok API Error:', error);
+            this.hideTypingIndicator();
+            this.addMessage('bot', "Sorry, I'm having trouble connecting right now. Let me use my local knowledge instead! 🙏");
+            
+            // Use fallback response
+            setTimeout(() => {
+                const fallbackResponse = this.getFallbackResponse(message);
+                this.addMessage('bot', fallbackResponse);
+            }, 1000);
+        }
+
+        if (sendButton) sendButton.disabled = false;
+    }
+
+    sendQuickMessage(message) {
+        console.log('⚡ Quick message:', message);
+        const input = document.getElementById('chat-input');
+        if (input) {
+            input.value = message;
+            this.sendMessage();
+        }
+    }
+
+    async getGrokResponse(userMessage) {
+        console.log('🧠 Getting Grok response for:', userMessage);
+        
+        const prompt = `You are Chennai Guru, a knowledgeable and friendly cultural guide for Chennai, India. You have deep expertise in:
+
+- Chennai's famous places, temples, beaches, and attractions
+- Tamil culture, traditions, and festivals  
+- Chennai's food culture and famous dishes
+- History and architecture of Chennai
+- Local customs and etiquette
+- Transportation and practical travel tips
+- Tamil language basics for tourists
+
+User asks: "${userMessage}"
+
+Respond in a warm, enthusiastic way like a local Chennai guide. Include:
+- Practical and cultural information
+- Relevant Tamil phrases with pronunciation in brackets
+- Specific recommendations when applicable
+- Cultural context to help understanding
+
+Keep response under 150 words, engaging and informative.`;
+
+        try {
+            console.log('📤 Sending request to Groq API...');
+            
+            const requestBody = {
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                model: 'llama-3.1-8b-instant',
+                max_tokens: 300,
+                temperature: 0.7,
+                top_p: 1,
+                stream: false
+            };
+
+            console.log('📋 Request body:', JSON.stringify(requestBody, null, 2));
+
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log('📡 API Response status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ API Error Response Body:', errorText);
+                
+                let errorDetails = 'Unknown error';
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorDetails = errorJson.error?.message || errorJson.message || errorText;
+                } catch (e) {
+                    errorDetails = errorText;
+                }
+                
+                throw new Error(`API request failed: ${response.status} - ${errorDetails}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ API Response received:', data);
+            
+            if (data.choices && data.choices[0] && data.choices[0].message) {
+                return data.choices[0].message.content;
+            } else {
+                console.error('❌ Unexpected response structure:', data);
+                throw new Error('Invalid response structure from API');
+            }
+            
+        } catch (error) {
+            console.error('🚫 Detailed API Error:', error);
+            
+            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                console.log('🔄 Using fallback response due to network error');
+                return this.getFallbackResponse(userMessage);
+            }
+            
+            throw error;
+        }
+    }
+
+    getFallbackResponse(userMessage) {
+        console.log('🎭 Generating fallback response for:', userMessage);
+        
+        const message = userMessage.toLowerCase();
+        
+        if (message.includes('marina') || message.includes('beach')) {
+            return "Marina Beach is Chennai's crown jewel! 🌊 At 13km, it's the world's second-longest urban beach. Best times: sunrise (6 AM) and sunset (6 PM). Try 'sundal' (சுண்டல்) - spiced chickpeas from beach vendors. The lighthouse offers great views! In Tamil: 'கடல் அழகு' (kadal alagu) means 'ocean beauty'. Perfect for morning walks and evening relaxation!";
+        }
+        
+        if (message.includes('food') || message.includes('eat') || message.includes('restaurant') || message.includes('dish')) {
+            return "Chennai food is incredible! 🍽️ Must-try: Idli-sambar (breakfast), Chettinad chicken (lunch), filter coffee (anytime). Visit Saravana Bhavan for authentic taste. Street food: kothu parotta, bajji, and vada pav. In Tamil: 'சாப்பாடு சுவையா இருக்கு' (saappadu suvaiya irukku) means 'food is delicious'. Don't miss Mylapore for traditional eats!";
+        }
+        
+        if (message.includes('temple') || message.includes('kapaleeshwarar') || message.includes('worship') || message.includes('spiritual')) {
+            return "Kapaleeshwarar Temple in Mylapore is magnificent! 🕉️ Over 1300 years old with stunning Dravidian architecture. Visit during morning (6-8 AM) or evening aarti (6-8 PM). Dress modestly - no shorts/sleeveless. The gopuram has 1000+ sculptures! In Tamil: 'கோவில்' (kovil) means temple. Free entry, but photography has restrictions inside.";
+        }
+        
+        if (message.includes('transport') || message.includes('metro') || message.includes('bus') || message.includes('auto') || message.includes('travel')) {
+            return "Chennai transport is well-connected! 🚇 Metro covers major areas (₹10-60). Buses are cheap (₹5-25) but crowded. Auto-rickshaws: negotiate fare or use Ola/Uber. For airport: take metro or taxi (₹300-500). In Tamil: 'எங்கே போறீங்க?' (enge poreenge) means 'where are you going?' Always keep small change ready!";
+        }
+        
+        if (message.includes('festival') || message.includes('celebration') || message.includes('event') || message.includes('culture')) {
+            return "Chennai festivals are vibrant! 🎊 Major ones: Pongal (January), Diwali (October/November), Navaratri (September/October). December Music Season brings classical concerts citywide. Kapaleeshwarar Temple festival (March/April) is spectacular. In Tamil: 'விழா' (vizha) means festival. Experience traditional music, dance, and delicious festive foods during these times!";
+        }
+        
+        if (message.includes('shopping') || message.includes('market') || message.includes('buy') || message.includes('souvenir')) {
+            return "Chennai shopping is fantastic! 🛍️ T.Nagar for traditional wear and jewelry. Express Avenue/Phoenix MarketCity for modern shopping. Pondy Bazaar for bargains. Must-buy: silk sarees, bronze items, sandalwood products. In Tamil: 'விலை என்ன?' (vilai enna) means 'what's the price?' Always negotiate in local markets!";
+        }
+        
+        if (message.includes('weather') || message.includes('climate') || message.includes('temperature') || message.includes('season')) {
+            return "Chennai weather is tropical! 🌡️ Best time: November-February (pleasant, 20-30°C). March-May is hot (35-40°C). Monsoon: June-September (heavy rains). Carry umbrella during monsoon, stay hydrated in summer. In Tamil: 'வெயில் அதிகம்' (veyil adhigam) means 'too hot', 'மழை வருது' (mazhai varudhu) means 'rain is coming'!";
+        }
+        
+        if (message.includes('language') || message.includes('tamil') || message.includes('speak') || message.includes('phrase')) {
+            return "Tamil basics for Chennai! 🗣️ Essential phrases: 'வணக்கம்' (vanakkam) - hello, 'நன்றி' (nandri) - thank you, 'மன்னிக்கவும்' (mannikkavum) - sorry, 'எங்கே?' (enge) - where?, 'எவ்வளவு?' (evvalavu) - how much? Most people understand English, but Tamil wins hearts! Practice with auto drivers and shopkeepers!";
+        }
+        
+        return "Welcome to Chennai - Namma Chennai! 🏛️ I'm here to help you explore our beautiful city. Ask me about:\n\n🏖️ Marina Beach & beaches\n🕉️ Temples & spiritual sites\n🍽️ Food & restaurants\n🚇 Transportation tips\n🎊 Festivals & culture\n🛍️ Shopping areas\n🗣️ Tamil phrases\n\nWhat interests you most about Chennai? In Tamil we say 'என்ன வேணும்?' (enna veenum) - 'what do you want?'";
+    }
+
+    addMessage(sender, content) {
+        console.log(`💬 Adding ${sender} message:`, content.substring(0, 50) + '...');
+        
+        const messagesContainer = document.getElementById('chat-messages');
+        if (!messagesContainer) {
+            console.error('❌ Messages container not found');
+            return;
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = sender === 'bot' ? '🧙‍♂️' : '👤';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.textContent = content;
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(messageContent);
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        console.log('✅ Message added to chat');
+    }
+
+    showTypingIndicator() {
+        console.log('⌨️ Showing typing indicator');
+        this.isTyping = true;
+        const messagesContainer = document.getElementById('chat-messages');
+        if (!messagesContainer) return;
+
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot';
+        typingDiv.id = 'typing-indicator';
+        
+        typingDiv.innerHTML = `
+            <div class="message-avatar">🧙‍♂️</div>
+            <div class="typing-indicator">
+                <span>Chennai Guru is thinking...</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(typingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    hideTypingIndicator() {
+        console.log('🔇 Hiding typing indicator');
+        this.isTyping = false;
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+}
+
+// INITIALIZATION CODE
+console.log('🚀 Initializing Chennai Guru Chatbot...');
+
+function initializeChennaiGuru() {
+    console.log('🎯 Attempting to initialize Chennai Guru');
+    try {
+        window.chennaiGuru = new ChennaiGuruChatbot();
+        window.chennaiGuruInitialized = true;
+    } catch (error) {
+        console.error('❌ Chennai Guru initialization error:', error);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initializeChennaiGuru, 1500);
+    });
+} else {
+    setTimeout(initializeChennaiGuru, 1500);
+}
+
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (!window.chennaiGuruInitialized) {
+            console.log('🔄 Backup initialization triggered');
+            initializeChennaiGuru();
+        }
+    }, 2000);
+});
+
+// ==========================================
+// END OF CHENNAI GURU CHATBOT CODE
+// ==========================================
+
+
 }
